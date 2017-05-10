@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="SYS_USER" parent="global:SYS_USER"/>
+  </Model>
+  <View>
+    <ClientEvent name="onReady">view.id(&quot;loginUser&quot;).execute(function(e){&#xD;
+	view.get(&quot;^button&quot;).set(&quot;disabled&quot;,e.USER_ != &quot;admin&quot;);&#xD;
+	view.get(&quot;#form&quot;).set(&quot;readOnly&quot;,e.USER_ != &quot;admin&quot;);&#xD;
+})&#xD;
+</ClientEvent>
+    <Property name="packages">font-awesome</Property>
+    <DataSet id="dsUser">
+      <Property name="dataProvider">sysUser#getAll</Property>
+      <Property name="dataType">[SYS_USER]</Property>
+    </DataSet>
+    <ToolBar>
+      <DataPilot id="dataPilot">
+        <Property name="dataSet">dsUser</Property>
+        <Property name="itemCodes">pages</Property>
+      </DataPilot>
+      <ToolBarButton>
+        <ClientEvent name="onClick">view.id(&quot;dsUser&quot;).insert();&#xD;
+</ClientEvent>
+        <Property name="caption">新增</Property>
+        <Property name="tags">button</Property>
+        <Property name="iconClass">fa fa-plus</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <Property name="caption">保存</Property>
+        <Property name="action">actSave</Property>
+        <Property name="tags">button</Property>
+        <Property name="iconClass">fa fa-file-text</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsUser&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	dorado.MessageBox.confirm(&quot;确认删除该用户吗？&quot;,function(){&#xD;
+		data.remove();&#xD;
+		view.id(&quot;actSave&quot;).execute();&#xD;
+	})&#xD;
+}&#xD;
+</ClientEvent>
+        <Property name="caption">删除</Property>
+        <Property name="tags">button</Property>
+        <Property name="iconClass">fa fa-minus</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsUser&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	view.id(&quot;autoForm1&quot;).set(&quot;entity&quot;,{})&#xD;
+	view.id(&quot;dlgResetPsd&quot;).show();&#xD;
+}&#xD;
+</ClientEvent>
+        <Property name="caption">重置密码</Property>
+        <Property name="iconClass">fa fa-pencil-square-o</Property>
+        <Property name="tags">button</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <Property name="iconClass">fa fa-refresh</Property>
+        <Property name="caption">刷新</Property>
+      </ToolBarButton>
+    </ToolBar>
+    <SplitPanel>
+      <Property name="position">40%</Property>
+      <MainControl>
+        <Panel>
+          <Property name="caption">详细信息</Property>
+          <Children>
+            <AutoForm id="form">
+              <Property name="dataSet">dsUser</Property>
+              <AutoFormElement>
+                <Property name="name">USER_</Property>
+                <Property name="property">USER_</Property>
+                <Editor/>
+              </AutoFormElement>
+              <AutoFormElement>
+                <Property name="name">NAME_</Property>
+                <Property name="property">NAME_</Property>
+                <Editor/>
+              </AutoFormElement>
+              <AutoFormElement layoutConstraint="colSpan:2">
+                <Property name="name">MEMO</Property>
+                <Property name="property">MEMO</Property>
+                <Property name="editorType">TextArea</Property>
+                <Editor/>
+              </AutoFormElement>
+              <AutoFormElement layoutConstraint="colSpan:2">
+                <Property name="name">ACTIVE</Property>
+                <Property name="property">ACTIVE</Property>
+                <Editor>
+                  <CheckBox>
+                    <Property name="onValue">1</Property>
+                    <Property name="offValue">0</Property>
+                  </CheckBox>
+                </Editor>
+              </AutoFormElement>
+              <AutoFormElement>
+                <Property name="name">CREATE_DATE</Property>
+                <Property name="property">CREATE_DATE</Property>
+                <Editor/>
+              </AutoFormElement>
+              <AutoFormElement>
+                <Property name="name">CREATE_USER</Property>
+                <Property name="property">CREATE_USER</Property>
+                <Editor/>
+              </AutoFormElement>
+              <AutoFormElement>
+                <Property name="name">UPDATE_DATE</Property>
+                <Property name="property">UPDATE_DATE</Property>
+                <Editor/>
+              </AutoFormElement>
+              <AutoFormElement>
+                <Property name="name">UPDATE_USER</Property>
+                <Property name="property">UPDATE_USER</Property>
+                <Editor/>
+              </AutoFormElement>
+            </AutoForm>
+          </Children>
+        </Panel>
+      </MainControl>
+      <SideControl>
+        <DataGrid>
+          <ClientEvent name="onDataRowClick">self.set(&quot;readOnly&quot;,!arg.data || !arg.data.isDirty()) </ClientEvent>
+          <Property name="dataSet">dsUser</Property>
+          <Property name="readOnly">true</Property>
+          <RowNumColumn/>
+          <DataColumn name="USER_">
+            <Property name="property">USER_</Property>
+          </DataColumn>
+          <DataColumn name="NAME_">
+            <Property name="property">NAME_</Property>
+          </DataColumn>
+        </DataGrid>
+      </SideControl>
+    </SplitPanel>
+    <UpdateAction id="actSave">
+      <Property name="dataResolver">sysUser#saveAll</Property>
+      <Property name="successMessage">保存成功！</Property>
+      <UpdateItem>
+        <Property name="dataSet">dsUser</Property>
+        <Property name="dataPath">[#dirty]</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <AjaxAction id="loginUser">
+      <Property name="service">commonUtil#getLoginUser</Property>
+    </AjaxAction>
+    <Dialog id="dlgResetPsd">
+      <Property name="caption">请输入新密码</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;ajaxRestPsd&quot;).set(&quot;parameter&quot;,{&#xD;
+	data:view.id(&quot;dsUser&quot;).getData(&quot;#&quot;),&#xD;
+	NEW_PSD:view.id(&quot;autoForm1&quot;).get(&quot;entity.VALUE&quot;)&#xD;
+}).execute(function(){&#xD;
+	view.id(&quot;dlgResetPsd&quot;).hide();&#xD;
+});&#xD;
+</ClientEvent>
+          <Property name="caption">确认</Property>
+          <Property name="icon">fa fa-check</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dlgResetPsd&quot;).hide();&#xD;
+</ClientEvent>
+          <Property name="caption">取消</Property>
+          <Property name="icon">fa fa-undo</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <AutoForm id="autoForm1">
+          <Property name="cols">*</Property>
+          <AutoFormElement>
+            <Property name="property">VALUE</Property>
+            <Property name="name">VALUE</Property>
+            <Property name="showLabel">false</Property>
+            <Editor/>
+          </AutoFormElement>
+        </AutoForm>
+      </Children>
+      <Tools/>
+    </Dialog>
+    <AjaxAction id="ajaxRestPsd">
+      <Property name="service">sysUser#updatePasward</Property>
+    </AjaxAction>
+  </View>
+</ViewConfig>

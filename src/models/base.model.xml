@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Model>
+  <DataType name="BASE_TYPE" meta="x:15;y:0;child:SYS_MENU,SYS_USER,BASE_CODE,BASE_CLASS">
+    <PropertyDef name="MEMO">
+      <Property name="dataType">String</Property>
+      <Property name="label">备注</Property>
+      <Property name="readOnly">false</Property>
+    </PropertyDef>
+    <PropertyDef name="ACTIVE">
+      <Property name="dataType">String</Property>
+      <Property name="defaultValue">1</Property>
+      <Property name="label">激活</Property>
+    </PropertyDef>
+    <PropertyDef name="CREATE_DATE">
+      <Property name="dataType">DateTime</Property>
+      <Property name="label">创建时间</Property>
+      <Property name="readOnly">true</Property>
+    </PropertyDef>
+    <PropertyDef name="CREATE_USER">
+      <Property name="dataType">String</Property>
+      <Property name="label">创建人</Property>
+      <Property name="readOnly">true</Property>
+    </PropertyDef>
+    <PropertyDef name="UPDATE_DATE">
+      <Property name="dataType">DateTime</Property>
+      <Property name="label">更新时间</Property>
+      <Property name="readOnly">true</Property>
+    </PropertyDef>
+    <PropertyDef name="UPDATE_USER">
+      <Property name="dataType">String</Property>
+      <Property name="label">更新人</Property>
+      <Property name="readOnly">true</Property>
+    </PropertyDef>
+  </DataType>
+  <DataType name="SYS_USER" parent="BASE_TYPE" meta="x:75;y:210">
+    <PropertyDef name="ID_">
+      <Property name="label">主键</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="USER_">
+      <Property name="dataType">String</Property>
+      <Property name="label">用户名</Property>
+    </PropertyDef>
+    <PropertyDef name="NAME_">
+      <Property name="label">姓名</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="PASSWORD_">
+      <Property name="label">密码</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+  </DataType>
+  <DataType name="SYS_MENU" parent="BASE_TYPE" meta="x:225;y:-8">
+    <PropertyDef name="PK_SYS_MENU">
+      <Property name="label">主键</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="MENU_CODE">
+      <Property name="label">菜单编码</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="MENU_NAME">
+      <Property name="label">菜单名称</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="MENU_URL">
+      <Property name="label">资源链接</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="ICONCLASS">
+      <Property name="dataType">String</Property>
+      <Property name="label">图标</Property>
+    </PropertyDef>
+    <PropertyDef name="IS_NAVIGATION">
+      <Property name="label">是否导航菜单</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="IS_SHOW">
+      <Property name="dataType">String</Property>
+      <Property name="label">是否显示</Property>
+      <Property name="defaultValue">1</Property>
+    </PropertyDef>
+    <PropertyDef name="PK_PARENT_MENU">
+      <Property name="label">父菜单主键</Property>
+      <Property name="dataType">String</Property>
+    </PropertyDef>
+    <PropertyDef name="MENU_ORDER">
+      <Property name="dataType">String</Property>
+      <Property name="label">序号</Property>
+    </PropertyDef>
+  </DataType>
+  <DataType name="SYS_MENU_HIS">
+    <PropertyDef name="PK_SYS_MENU_HIS">
+      <Property name="dataType">String</Property>
+      <Property name="label">主键</Property>
+    </PropertyDef>
+    <PropertyDef name="PK_SYS_MENU">
+      <Property name="dataType">String</Property>
+      <Property name="label">菜单主键</Property>
+    </PropertyDef>
+    <PropertyDef name="PK_SYS_USER">
+      <Property name="dataType">String</Property>
+      <Property name="label">人员PK</Property>
+    </PropertyDef>
+    <PropertyDef name="COUNT">
+      <Property name="dataType">Integer</Property>
+      <Property name="label">点击次数</Property>
+    </PropertyDef>
+    <PropertyDef name="LAST_CLICK_TIME">
+      <Property name="dataType">Date</Property>
+      <Property name="label">最后点击时间</Property>
+    </PropertyDef>
+  </DataType>
+  <DataType name="BASE_CLASS" parent="BASE_TYPE">
+    <PropertyDef name="PK_BASE_CLASS">
+      <Property name="dataType">String</Property>
+      <Property name="label">主键</Property>
+    </PropertyDef>
+    <PropertyDef name="CLASS_ID">
+      <Property name="dataType">String</Property>
+      <Property name="label">类别编码</Property>
+    </PropertyDef>
+    <PropertyDef name="CLASS_NAME">
+      <Property name="dataType">String</Property>
+      <Property name="label">类别名称</Property>
+    </PropertyDef>
+  </DataType>
+  <DataType name="BASE_CODE" parent="BASE_TYPE">
+    <PropertyDef name="PK_BASE_CODE">
+      <Property name="dataType">String</Property>
+      <Property name="label">主键</Property>
+    </PropertyDef>
+    <PropertyDef name="CODE_ID">
+      <Property name="dataType">String</Property>
+      <Property name="label">编码</Property>
+    </PropertyDef>
+    <PropertyDef name="CODE_NAME">
+      <Property name="dataType">String</Property>
+      <Property name="label">名称</Property>
+    </PropertyDef>
+    <PropertyDef name="CODE_CLASS">
+      <Property name="dataType">String</Property>
+      <Property name="label">编码类别</Property>
+    </PropertyDef>
+  </DataType>
+</Model>

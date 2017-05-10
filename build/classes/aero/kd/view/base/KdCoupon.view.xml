@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="KD_COUPON" parent="global:KD_COUPON">
+      <ClientEvent name="onCurrentChange">view.id(&quot;actLoadItem&quot;).execute();</ClientEvent>
+    </DataType>
+    <DataType name="KD_COUPON_ITEM" parent="global:KD_COUPON_ITEM">
+      <PropertyDef name="CODE">
+        <Property name="dataType">String</Property>
+        <Property name="label">编码</Property>
+      </PropertyDef>
+      <PropertyDef name="NAME">
+        <Property name="dataType">String</Property>
+        <Property name="label">名称</Property>
+      </PropertyDef>
+      <PropertyDef name="DES">
+        <Property name="dataType">String</Property>
+        <Property name="label">描述</Property>
+      </PropertyDef>
+      <PropertyDef name="PRICE">
+        <Property name="dataType">Double</Property>
+        <Property name="label">单价</Property>
+      </PropertyDef>
+      <PropertyDef name="MEM_PRICE">
+        <Property name="dataType">Double</Property>
+        <Property name="label">会员价格</Property>
+      </PropertyDef>
+    </DataType>
+  </Model>
+  <View>
+    <ClientEvent name="onReady">view.id(&quot;actLoad&quot;).execute();</ClientEvent>
+    <Property name="packages">font-awesome</Property>
+    <DataSet id="dsCoupon">
+      <Property name="dataType">[KD_COUPON]</Property>
+      <Property name="dataProvider">kdCoupon#getAll</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <DataSet id="dsCouItem">
+      <Property name="dataType">[KD_COUPON_ITEM]</Property>
+      <Property name="dataProvider">kdCoupon#getItem</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <DataSet id="dsCharge">
+      <Property name="dataType">[KD_CHARGEITEM]</Property>
+      <Property name="dataProvider">kdChargeItem#getAll</Property>
+    </DataSet>
+    <DataSet id="dsCondition">
+      <ClientEvent name="onReady">self.setData({})&#xD;
+</ClientEvent>
+      <Property name="dataType">[KD_COUPON]</Property>
+    </DataSet>
+    <AutoForm>
+      <Property name="dataSet">dsCondition</Property>
+      <AutoFormElement>
+        <Property name="name">CODE</Property>
+        <Property name="property">CODE</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">NAME</Property>
+        <Property name="property">NAME</Property>
+        <Editor/>
+      </AutoFormElement>
+    </AutoForm>
+    <SplitPanel>
+      <Property name="position">500</Property>
+      <Property name="direction">right</Property>
+      <MainControl>
+        <Container>
+          <ToolBar>
+            <DataPilot>
+              <Property name="dataSet">dsCoupon</Property>
+            </DataPilot>
+            <ToolBarButton>
+              <ClientEvent name="onClick">view.id(&quot;dsCoupon&quot;).insert();&#xD;
+view.id(&quot;dialog&quot;).show();&#xD;
+</ClientEvent>
+              <Property name="caption">新增</Property>
+              <Property name="iconClass">fa fa-plus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsCoupon&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	dorado.MessageBox.confirm(&quot;确认删除此数据吗？&quot;,function(){&#xD;
+		data.remove();&#xD;
+		view.id(&quot;actSave&quot;).execute();&#xD;
+		view.id(&quot;actLoad&quot;).execute();&#xD;
+	});&#xD;
+}&#xD;
+&#xD;
+</ClientEvent>
+              <Property name="caption">删除</Property>
+              <Property name="iconClass">fa fa-minus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">view.id(&quot;dialog&quot;).show();&#xD;
+</ClientEvent>
+              <Property name="caption">编辑</Property>
+              <Property name="iconClass">fa fa-pencil</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <Property name="caption">查询</Property>
+              <Property name="iconClass">fa fa-search</Property>
+              <Property name="action">actLoad</Property>
+            </ToolBarButton>
+          </ToolBar>
+          <DataGrid>
+            <ClientEvent name="onReady">//Grid里面设置Active字段为checkBox&#xD;
+//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;0&quot; ,&#xD;
+                   onValue: &quot;1&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self. set ( &quot;&amp;ACTIVE.renderer&quot;,new CellRenderer ());&#xD;
+</ClientEvent>
+            <Property name="dataSet">dsCoupon</Property>
+            <Property name="fixedColumnCount">1</Property>
+            <Property name="readOnly">true</Property>
+            <RowNumColumn/>
+            <DataColumn name="CODE">
+              <Property name="property">CODE</Property>
+            </DataColumn>
+            <DataColumn name="NAME">
+              <Property name="property">NAME</Property>
+            </DataColumn>
+            <DataColumn>
+              <Property name="property">AMT</Property>
+              <Property name="name">AMT</Property>
+            </DataColumn>
+            <DataColumn name="DES">
+              <Property name="property">DES</Property>
+              <Property name="width">300</Property>
+            </DataColumn>
+            <DataColumn name="MEMO">
+              <Property name="property">MEMO</Property>
+            </DataColumn>
+            <DataColumn name="ACTIVE">
+              <Property name="property">ACTIVE</Property>
+            </DataColumn>
+            <DataColumn name="CREATE_DATE">
+              <Property name="property">CREATE_DATE</Property>
+            </DataColumn>
+            <DataColumn name="CREATE_USER">
+              <Property name="property">CREATE_USER</Property>
+            </DataColumn>
+            <DataColumn name="UPDATE_DATE">
+              <Property name="property">UPDATE_DATE</Property>
+            </DataColumn>
+            <DataColumn name="UPDATE_USER">
+              <Property name="property">UPDATE_USER</Property>
+            </DataColumn>
+          </DataGrid>
+        </Container>
+      </MainControl>
+      <SideControl>
+        <Container>
+          <ToolBar>
+            <DataPilot>
+              <Property name="dataSet">dsCouItem</Property>
+            </DataPilot>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsCoupon&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	view.id(&quot;dsCouItem&quot;).insert({&#xD;
+		PK_KD_COUPON : data.get(&quot;PK_KD_COUPON&quot;)&#xD;
+	});&#xD;
+}else{&#xD;
+	dorado.MessageBox.alert(&quot;请选择优惠券！&quot;)&#xD;
+}&#xD;
+</ClientEvent>
+              <Property name="caption">新增</Property>
+              <Property name="iconClass">fa fa-plus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsCouItem&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	dorado.MessageBox.confirm(&quot;确认删除此数据吗？&quot;,function(){&#xD;
+		data.remove();&#xD;
+		view.id(&quot;actSaveItem&quot;).execute();&#xD;
+		view.id(&quot;actLoadItem&quot;).execute();&#xD;
+	});&#xD;
+}&#xD;
+&#xD;
+</ClientEvent>
+              <Property name="caption">删除</Property>
+              <Property name="iconClass">fa fa-minus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <Property name="caption">查询</Property>
+              <Property name="iconClass">fa fa-search</Property>
+              <Property name="action">actLoad</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <Property name="iconClass">fa fa-file-text</Property>
+              <Property name="caption">保存</Property>
+              <Property name="action">actSaveItem</Property>
+            </ToolBarButton>
+          </ToolBar>
+          <DataGrid>
+            <ClientEvent name="onReady">//Grid里面设置Active字段为checkBox&#xD;
+//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;0&quot; ,&#xD;
+                   onValue: &quot;1&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self. set ( &quot;&amp;ACTIVE.renderer&quot;,new CellRenderer ());&#xD;
+</ClientEvent>
+            <Property name="dataSet">dsCouItem</Property>
+            <Property name="fixedColumnCount">1</Property>
+            <Property name="readOnly">false</Property>
+            <RowNumColumn/>
+            <DataColumn>
+              <Property name="property">QTY</Property>
+              <Property name="name">QTY</Property>
+              <Property name="align">center</Property>
+            </DataColumn>
+            <DataColumn name="NAME">
+              <Property name="property">NAME</Property>
+              <Property name="trigger">dsddCharge</Property>
+            </DataColumn>
+            <DataColumn name="PRICE">
+              <Property name="property">PRICE</Property>
+              <Property name="readOnly">true</Property>
+            </DataColumn>
+            <DataColumn name="MEM_PRICE">
+              <Property name="property">MEM_PRICE</Property>
+              <Property name="readOnly">true</Property>
+            </DataColumn>
+            <DataColumn name="DES">
+              <Property name="property">DES</Property>
+              <Property name="readOnly">true</Property>
+            </DataColumn>
+          </DataGrid>
+        </Container>
+      </SideControl>
+    </SplitPanel>
+    <Action id="actLoad">
+      <ClientEvent name="onExecute">view.id(&quot;dsCoupon&quot;).set(&quot;parameter&quot;,&#xD;
+		view.id(&quot;dsCondition&quot;).getData(&quot;#&quot;)&#xD;
+).flush();&#xD;
+var data = view.id(&quot;dsCoupon&quot;).getData(&quot;#&quot;);&#xD;
+if (!data) {&#xD;
+	view.id(&quot;dsCouItem&quot;).clear();&#xD;
+}&#xD;
+</ClientEvent>
+    </Action>
+    <Action id="actLoadItem">
+      <ClientEvent name="onExecute">view.id(&quot;dsCouItem&quot;).set(&quot;parameter&quot;,&#xD;
+	view.id(&quot;dsCoupon&quot;).getData(&quot;#.PK_KD_COUPON&quot;)&#xD;
+).flushAsync();&#xD;
+</ClientEvent>
+    </Action>
+    <UpdateAction id="actSave">
+      <Property name="successMessage">保存成功！</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">0</Property>
+        </Entity>
+      </Property>
+      <Property name="dataResolver">kdCoupon#saveAll</Property>
+      <UpdateItem>
+        <Property name="dataPath">[#dirty]</Property>
+        <Property name="dataSet">dsCoupon</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <UpdateAction id="actSaveItem">
+      <Property name="successMessage">保存成功！</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">1</Property>
+        </Entity>
+      </Property>
+      <Property name="dataResolver">kdCoupon#saveAll</Property>
+      <UpdateItem>
+        <Property name="dataPath">[#dirty]</Property>
+        <Property name="dataSet">dsCouItem</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <Dialog id="dialog">
+      <Property name="width">60%</Property>
+      <Property name="caption">优惠券信息</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;actSave&quot;).execute(function(){&#xD;
+	view.id(&quot;dialog&quot;).hide();&#xD;
+	view.id(&quot;actLoad&quot;).execute();&#xD;
+})&#xD;
+</ClientEvent>
+          <Property name="iconClass">fa fa-file-text</Property>
+          <Property name="caption">保存</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dialog&quot;).hide();&#xD;
+view.id(&quot;dsCoupon&quot;).getData().cancel();&#xD;
+</ClientEvent>
+          <Property name="caption">取消</Property>
+          <Property name="iconClass">fa fa-undo</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <AutoForm>
+          <Property name="dataSet">dsCoupon</Property>
+          <AutoFormElement>
+            <Property name="name">CODE</Property>
+            <Property name="property">CODE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">NAME</Property>
+            <Property name="property">NAME</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="property">AMT</Property>
+            <Property name="name">AMT</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement layoutConstraint="colSpan:2">
+            <Property name="name">DES</Property>
+            <Property name="property">DES</Property>
+            <Property name="editorType">TextArea</Property>
+            <Editor/>
+          </AutoFormElement>
+        </AutoForm>
+      </Children>
+      <Tools/>
+    </Dialog>
+    <DataSetDropDown id="dsddCharge">
+      <Property name="dataSet">dsCharge</Property>
+      <Property name="assignmentMap">PK_KD_CHARGEITEM,CODE,NAME,DES,PRICE,MEM_PRICE</Property>
+      <Property name="displayProperty">NAME</Property>
+      <Property name="property">CODE</Property>
+    </DataSetDropDown>
+  </View>
+</ViewConfig>

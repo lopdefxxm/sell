@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="SYS_MENU" parent="global:SYS_MENU">
+      <Reference name="child">
+        <Property name="dataProvider">mainMange#getChild</Property>
+        <Property name="dataType">[SYS_MENU]</Property>
+        <Property name="parameter">$${this.PK_SYS_MENU}</Property>
+      </Reference>
+    </DataType>
+  </Model>
+  <View>
+    <ClientEvent name="onReady">document.title = '凯登足疗管理系统'&#xD;
+window.TopView = view;&#xD;
+view.openTab = function(config){&#xD;
+	if(!config.name){&#xD;
+		dorado.MessageBox.alert(&quot;参数错误，创建页签失败！&quot;)&#xD;
+	}&#xD;
+	if(!config.path){&#xD;
+		return;&#xD;
+	}&#xD;
+	var controlTab = view.id(&quot;tab&quot;).getTab(config.name);&#xD;
+	if(controlTab){&#xD;
+		controlTab.close();&#xD;
+	}&#xD;
+	controlTab = view.id(&quot;tab&quot;).addTab({&#xD;
+		$type: &quot;IFrame&quot;,&#xD;
+		path : config.path,&#xD;
+		name : config.name,&#xD;
+		caption : config.caption,&#xD;
+	//	icon:&quot; url(>skin>common/icons.gif) -160px -40px&quot;,&#xD;
+		iconClass: config.iconClass?config.iconClass:&quot;fa fa-file-text-o&quot;,&#xD;
+		closeable : true&#xD;
+	},true);&#xD;
+	&#xD;
+	view.id(&quot;tab&quot;).set(&quot;currentTab&quot;,controlTab);&#xD;
+}&#xD;
+&#xD;
+$(view.id(&quot;toolBar&quot;).getDom()).attr(&quot;height&quot;,&quot;45px&quot;);&#xD;
+view.id(&quot;loginUser&quot;).execute(function(e){&#xD;
+	view.id(&quot;label&quot;).set(&quot;text&quot;,&quot;欢迎你：&quot;+e+&quot;，今天是&quot;+new Date().formatDate(&quot;Y年n月d日 l&quot;));&#xD;
+})&#xD;
+</ClientEvent>
+    <Property name="packages">font-awesome</Property>
+    <DataSet id="dsMenu">
+      <Property name="dataType">[SYS_MENU]</Property>
+      <Property name="dataProvider">mainMange#getNav</Property>
+    </DataSet>
+    <DataSet id="dsHis">
+      <Property name="dataType">[SYS_MENU]</Property>
+      <Property name="dataProvider">mainMange#getMenuHis</Property>
+    </DataSet>
+    <ToolBar id="toolBar">
+      <Label>
+        <Property name="style">
+          <Property name="padding">0 8px</Property>
+        </Property>
+        <Property name="text">凯登足疗管理系统</Property>
+        <Property name="hideMode">display</Property>
+      </Label>
+      <Separator>
+        <Property name="hideMode">display</Property>
+      </Separator>
+      <Label id="label">
+        <Property name="style">
+          <Property name="padding">0 8px</Property>
+        </Property>
+      </Label>
+      <Fill/>
+      <ToolBarButton>
+        <ClientEvent name="onClick">dorado.MessageBox.confirm(&quot;确认重新登陆吗？&quot;,function(){&#xD;
+	window.location.href=&quot;/sell/login.html&quot;;&#xD;
+})&#xD;
+</ClientEvent>
+        <Property name="caption">注销</Property>
+        <Property name="iconClass">fa fa-share-square-o</Property>
+      </ToolBarButton>
+    </ToolBar>
+    <SplitPanel>
+      <Property name="position">220</Property>
+      <MainControl>
+        <Panel>
+          <Property name="caption">操作区</Property>
+          <Children>
+            <TabControl id="tab">
+              <ControlTab>
+                <Property name="caption">来宾登记</Property>
+                <Property name="iconClass">fa fa-building-o</Property>
+                <IFrame id="HomePage">
+                  <Property name="path">aero.kd.view.biz.KdBizMain.d</Property>
+                </IFrame>
+              </ControlTab>
+            </TabControl>
+          </Children>
+        </Panel>
+      </MainControl>
+      <SideControl>
+        <SplitPanel layoutConstraint="padding:5px">
+          <Property name="direction">bottom</Property>
+          <Property name="position">30%</Property>
+          <Property name="collapseable">false</Property>
+          <MainControl>
+            <Panel>
+              <Property name="caption">菜单</Property>
+              <Children>
+                <Container layout="padding:10">
+                  <DataTree>
+                    <ClientEvent name="onDataRowClick">var data = self.get(&quot;currentEntity&quot;);&#xD;
+var isNav = data.get(&quot;IS_NAVIGATION&quot;);&#xD;
+if(isNav == &quot;N&quot;){&#xD;
+	view.id(&quot;updateMenuHis&quot;).set(&quot;parameter&quot;,data.get(&quot;PK_SYS_MENU&quot;)).execute();&#xD;
+	view.openTab({&#xD;
+		path : data.get(&quot;MENU_URL&quot;),&#xD;
+		name : data.get(&quot;MENU_NAME&quot;),&#xD;
+		caption : data.get(&quot;MENU_NAME&quot;),&#xD;
+		iconClass : data.get(&quot;ICONCLASS&quot;),&#xD;
+	});&#xD;
+}&#xD;
+</ClientEvent>
+                    <ClientEvent name="onDataNodeCreate">var iconClass = arg.data.get(&quot;ICONCLASS&quot;);&#xD;
+if(!iconClass){&#xD;
+	iconClass = &quot;fa fa-file-text-o&quot;;&#xD;
+}&#xD;
+arg.node.set(&quot;iconClass&quot;,iconClass);&#xD;
+</ClientEvent>
+                    <Property name="dataSet">dsMenu</Property>
+                    <Property name="rowHeight">30</Property>
+                    <BindingConfigs>
+                      <BindingConfig>
+                        <Property name="labelProperty">MENU_NAME</Property>
+                        <Property name="name">nav</Property>
+                        <BindingConfig>
+                          <Property name="name">child</Property>
+                          <Property name="labelProperty">MENU_NAME</Property>
+                          <Property name="childrenProperty">child</Property>
+                        </BindingConfig>
+                      </BindingConfig>
+                    </BindingConfigs>
+                  </DataTree>
+                </Container>
+              </Children>
+            </Panel>
+          </MainControl>
+          <SideControl>
+            <Panel>
+              <Property name="caption">常用菜单</Property>
+              <Children>
+                <Container layout="padding:10">
+                  <DataTree>
+                    <ClientEvent name="onDataRowClick">var data = self.get(&quot;currentEntity&quot;);&#xD;
+var isNav = data.get(&quot;IS_NAVIGATION&quot;);&#xD;
+if(isNav == &quot;N&quot;){&#xD;
+	view.id(&quot;updateMenuHis&quot;).set(&quot;parameter&quot;,data.get(&quot;PK_SYS_MENU&quot;)).execute();&#xD;
+	view.openTab({&#xD;
+		path : data.get(&quot;MENU_URL&quot;),&#xD;
+		name : data.get(&quot;MENU_NAME&quot;),&#xD;
+		caption : data.get(&quot;MENU_NAME&quot;),&#xD;
+		iconClass : data.get(&quot;ICONCLASS&quot;),&#xD;
+	});&#xD;
+}&#xD;
+</ClientEvent>
+                    <ClientEvent name="onDataNodeCreate">var iconClass = arg.data.get(&quot;ICONCLASS&quot;);&#xD;
+if(!iconClass){&#xD;
+	iconClass = &quot;fa fa-file-text-o&quot;;&#xD;
+}&#xD;
+arg.node.set(&quot;iconClass&quot;,iconClass);&#xD;
+</ClientEvent>
+                    <Property name="dataSet">dsHis</Property>
+                    <Property name="rowHeight">30</Property>
+                    <Property name="highlightCurrentRow">false</Property>
+                    <BindingConfigs>
+                      <BindingConfig>
+                        <Property name="labelProperty">MENU_NAME</Property>
+                        <Property name="name">nav</Property>
+                      </BindingConfig>
+                    </BindingConfigs>
+                  </DataTree>
+                </Container>
+              </Children>
+            </Panel>
+          </SideControl>
+        </SplitPanel>
+      </SideControl>
+    </SplitPanel>
+    <AjaxAction id="loginUser">
+      <Property name="service">commonUtil#getLoginUserName</Property>
+    </AjaxAction>
+    <AjaxAction id="updateMenuHis">
+      <Property name="service">mainMange#updateMenuHis</Property>
+    </AjaxAction>
+  </View>
+</ViewConfig>

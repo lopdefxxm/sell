@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="BASE_CLASS" parent="global:BASE_CLASS">
+      <Reference name="child">
+        <Property name="dataType">[BASE_CODE]</Property>
+        <Property name="dataProvider">baseCode#getCode</Property>
+        <Property name="parameter">$${this.CLASS_ID}</Property>
+      </Reference>
+    </DataType>
+    <DataType name="BASE_CODE" parent="global:BASE_CODE"/>
+    <DataType name="CONDITION">
+      <PropertyDef name="CLASS_ID">
+        <Property name="dataType">String</Property>
+        <Property name="label">类别编码</Property>
+      </PropertyDef>
+      <PropertyDef name="CLASS_NAME">
+        <Property name="dataType">String</Property>
+        <Property name="label">类别名称</Property>
+      </PropertyDef>
+    </DataType>
+  </Model>
+  <View>
+    <Property name="packages">font-awesome</Property>
+    <DataSet id="dsClass">
+      <Property name="dataType">[BASE_CLASS]</Property>
+      <Property name="dataProvider">baseCode#getCodeClass</Property>
+    </DataSet>
+    <DataSet id="dsCondition">
+      <ClientEvent name="onReady">self.setData({})&#xD;
+</ClientEvent>
+      <Property name="dataType">[CONDITION]</Property>
+    </DataSet>
+    <SplitPanel>
+      <Property name="position">40%</Property>
+      <Property name="direction">top</Property>
+      <MainControl>
+        <Container>
+          <ToolBar>
+            <DataPilot>
+              <Property name="dataSet">dsClass</Property>
+              <Property name="dataPath">#.child</Property>
+            </DataPilot>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsClass&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	view.id(&quot;dsClass&quot;).getData(&quot;#.child&quot;).insert({&#xD;
+		CODE_CLASS:data.get(&quot;CLASS_ID&quot;)&#xD;
+	});&#xD;
+	&#xD;
+}&#xD;
+</ClientEvent>
+              <Property name="caption">新增</Property>
+              <Property name="iconClass">fa fa-plus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsClass&quot;).getData(&quot;#.#child&quot;);&#xD;
+if(data){&#xD;
+	data.remove();&#xD;
+}&#xD;
+&#xD;
+&#xD;
+</ClientEvent>
+              <Property name="caption">删除</Property>
+              <Property name="iconClass">fa fa-minus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <Property name="caption">保存</Property>
+              <Property name="iconClass">fa fa-file-text</Property>
+              <Property name="action">saveCode</Property>
+            </ToolBarButton>
+          </ToolBar>
+          <DataGrid>
+            <ClientEvent name="onReady">//Grid里面设置Active字段为checkBox&#xD;
+//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;0&quot; ,&#xD;
+                   onValue: &quot;1&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self. set ( &quot;&amp;ACTIVE.renderer&quot;,new CellRenderer ());&#xD;
+</ClientEvent>
+            <Property name="dataSet">dsClass</Property>
+            <Property name="dataPath">#.child</Property>
+            <RowNumColumn/>
+            <DataColumn name="CODE_ID">
+              <Property name="property">CODE_ID</Property>
+            </DataColumn>
+            <DataColumn name="CODE_NAME">
+              <Property name="property">CODE_NAME</Property>
+            </DataColumn>
+            <DataColumn name="MEMO">
+              <Property name="property">MEMO</Property>
+            </DataColumn>
+            <DataColumn name="ACTIVE">
+              <Property name="property">ACTIVE</Property>
+            </DataColumn>
+            <DataColumn name="CREATE_DATE">
+              <Property name="property">CREATE_DATE</Property>
+            </DataColumn>
+            <DataColumn name="CREATE_USER">
+              <Property name="property">CREATE_USER</Property>
+            </DataColumn>
+            <DataColumn name="UPDATE_DATE">
+              <Property name="property">UPDATE_DATE</Property>
+            </DataColumn>
+            <DataColumn name="UPDATE_USER">
+              <Property name="property">UPDATE_USER</Property>
+            </DataColumn>
+          </DataGrid>
+        </Container>
+      </MainControl>
+      <SideControl>
+        <Container>
+          <AutoForm>
+            <Property name="dataSet">dsCondition</Property>
+            <AutoFormElement>
+              <Property name="name">CLASS_ID</Property>
+              <Property name="property">CLASS_ID</Property>
+              <Editor/>
+            </AutoFormElement>
+            <AutoFormElement>
+              <Property name="name">CLASS_NAME</Property>
+              <Property name="property">CLASS_NAME</Property>
+              <Editor/>
+            </AutoFormElement>
+          </AutoForm>
+          <ToolBar>
+            <DataPilot>
+              <Property name="dataSet">dsClass</Property>
+            </DataPilot>
+            <ToolBarButton>
+              <Property name="caption">查询</Property>
+              <Property name="iconClass">fa fa-search</Property>
+              <Property name="action">actLoad</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">view.id(&quot;dsClass&quot;).insert();&#xD;
+view.id(&quot;dialog&quot;).show();&#xD;
+view.id(&quot;CLASS_ID_&quot;).set(&quot;readOnly&quot;,false);</ClientEvent>
+              <Property name="caption">新增</Property>
+              <Property name="iconClass">fa fa-plus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsClass&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	var childs = view.id(&quot;dsClass&quot;).getData(&quot;#.child&quot;);&#xD;
+	if(childs &amp;&amp; !childs.isEmpty()){&#xD;
+		throw new dorado.Exception(&quot;存在子数据，不能删除！&quot;);&#xD;
+	}&#xD;
+	dorado.MessageBox.confirm(&quot;确认删除此类别吗？&quot;,function(){&#xD;
+		data.remove();&#xD;
+		view.id(&quot;saveClass&quot;).execute(function(){&#xD;
+			view.id(&quot;actLoad&quot;).execute();&#xD;
+		});&#xD;
+	});&#xD;
+}&#xD;
+&#xD;
+</ClientEvent>
+              <Property name="caption">删除</Property>
+              <Property name="iconClass">fa fa-minus</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">view.id(&quot;dialog&quot;).show();&#xD;
+view.id(&quot;CLASS_ID_&quot;).set(&quot;readOnly&quot;,true);&#xD;
+</ClientEvent>
+              <Property name="caption">编辑</Property>
+              <Property name="iconClass">fa fa-pencil</Property>
+            </ToolBarButton>
+          </ToolBar>
+          <DataGrid>
+            <ClientEvent name="onReady">//Grid里面设置Active字段为checkBox&#xD;
+//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;0&quot; ,&#xD;
+                   onValue: &quot;1&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self. set ( &quot;&amp;ACTIVE.renderer&quot;,new CellRenderer ());&#xD;
+</ClientEvent>
+            <Property name="dataSet">dsClass</Property>
+            <Property name="readOnly">true</Property>
+            <RowNumColumn/>
+            <DataColumn name="CLASS_ID">
+              <Property name="property">CLASS_ID</Property>
+            </DataColumn>
+            <DataColumn name="CLASS_NAME">
+              <Property name="property">CLASS_NAME</Property>
+            </DataColumn>
+            <DataColumn name="MEMO">
+              <Property name="property">MEMO</Property>
+            </DataColumn>
+            <DataColumn name="ACTIVE">
+              <Property name="property">ACTIVE</Property>
+            </DataColumn>
+            <DataColumn name="CREATE_DATE">
+              <Property name="property">CREATE_DATE</Property>
+            </DataColumn>
+            <DataColumn name="CREATE_USER">
+              <Property name="property">CREATE_USER</Property>
+            </DataColumn>
+            <DataColumn name="UPDATE_DATE">
+              <Property name="property">UPDATE_DATE</Property>
+            </DataColumn>
+            <DataColumn name="UPDATE_USER">
+              <Property name="property">UPDATE_USER</Property>
+            </DataColumn>
+          </DataGrid>
+        </Container>
+      </SideControl>
+    </SplitPanel>
+    <UpdateAction id="saveClass">
+      <Property name="dataResolver">baseCode#saveAll</Property>
+      <Property name="successMessage">保存成功！</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">0</Property>
+        </Entity>
+      </Property>
+      <UpdateItem>
+        <Property name="dataSet">dsClass</Property>
+        <Property name="dataPath">[#dirty]</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <UpdateAction id="saveCode">
+      <Property name="dataResolver">baseCode#saveAll</Property>
+      <Property name="successMessage">保存成功！</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">1</Property>
+        </Entity>
+      </Property>
+      <UpdateItem>
+        <Property name="dataSet">dsClass</Property>
+        <Property name="dataPath">#.child[#dirty]</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <AjaxAction id="ajaxRestPsd">
+      <Property name="service">sysUser#updatePasward</Property>
+    </AjaxAction>
+    <Dialog id="dialog">
+      <Property name="width">60%</Property>
+      <Property name="height">60%</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;saveClass&quot;).execute(function(){&#xD;
+	view.id(&quot;dialog&quot;).hide();&#xD;
+	view.id(&quot;actLoad&quot;).execute( );&#xD;
+})&#xD;
+</ClientEvent>
+          <Property name="iconClass">fa fa-file-text</Property>
+          <Property name="caption">保存</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dialog&quot;).hide();&#xD;
+view.id(&quot;dsClass&quot;).getData().cancel();&#xD;
+</ClientEvent>
+          <Property name="caption">取消</Property>
+          <Property name="iconClass">fa fa-undo</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <AutoForm>
+          <Property name="dataSet">dsClass</Property>
+          <AutoFormElement id="CLASS_ID_">
+            <Property name="name">CLASS_ID</Property>
+            <Property name="property">CLASS_ID</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">CLASS_NAME</Property>
+            <Property name="property">CLASS_NAME</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement layoutConstraint="colSpan:2">
+            <Property name="name">MEMO</Property>
+            <Property name="property">MEMO</Property>
+            <Property name="editorType">TextArea</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement layoutConstraint="colSpan:2">
+            <Property name="name">ACTIVE</Property>
+            <Property name="property">ACTIVE</Property>
+            <Editor>
+              <CheckBox>
+                <Property name="offValue">0</Property>
+                <Property name="onValue">1</Property>
+              </CheckBox>
+            </Editor>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">CREATE_DATE</Property>
+            <Property name="property">CREATE_DATE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">CREATE_USER</Property>
+            <Property name="property">CREATE_USER</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">UPDATE_DATE</Property>
+            <Property name="property">UPDATE_DATE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">UPDATE_USER</Property>
+            <Property name="property">UPDATE_USER</Property>
+            <Editor/>
+          </AutoFormElement>
+        </AutoForm>
+      </Children>
+      <Tools/>
+    </Dialog>
+    <Action id="actLoad">
+      <ClientEvent name="onExecute">view.id(&quot;dsClass&quot;).set(&quot;parameter&quot;,view.id(&quot;dsCondition&quot;).getData(&quot;#&quot;)).flush();&#xD;
+</ClientEvent>
+    </Action>
+  </View>
+</ViewConfig>

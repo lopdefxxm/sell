@@ -1,0 +1,309 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="SYS_MENU" parent="global:SYS_MENU">
+      <Reference name="child">
+        <Property name="dataProvider">sysMenu#getChildMenu</Property>
+        <Property name="dataType">[SYS_MENU]</Property>
+        <Property name="parameter">$${this.PK_SYS_MENU}</Property>
+      </Reference>
+    </DataType>
+  </Model>
+  <View>
+    <Property name="packages">font-awesome</Property>
+    <DataSet id="dsNav">
+      <Property name="dataProvider">sysMenu#getNavigateMenu</Property>
+      <Property name="dataType">[SYS_MENU]</Property>
+    </DataSet>
+    <SplitPanel id="splitPanel">
+      <Property name="position">85%</Property>
+      <Property name="direction">right</Property>
+      <MainControl>
+        <Container>
+          <ToolBar>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var type = self.get(&quot;userData&quot;)&#xD;
+if(type ||type==&quot;true&quot;){//进入保存状态&#xD;
+	var dirtys = view.id(&quot;dsNav&quot;).queryData(&quot;[#dirty]&quot;);&#xD;
+	if(dirtys.length==0){//没有脏数据&#xD;
+		animate(true)&#xD;
+	}else{&#xD;
+		view.id(&quot;saveNav&quot;).execute(function(){&#xD;
+			animate(true)&#xD;
+			view.id(&quot;dsNav&quot;).flush();&#xD;
+		});&#xD;
+	}&#xD;
+}else{//进入编辑状态&#xD;
+	animate(false)&#xD;
+}&#xD;
+/**&#xD;
+ * flag 状态&#xD;
+ * 	true  进入保存状态(分隔栏显示，按钮变为编辑，增删按钮隐藏，表格不可编辑)&#xD;
+ * 	false 进入编辑状态(分隔栏隐藏，按钮变为保存，增删按钮显示，表格可编辑)&#xD;
+ */&#xD;
+function animate(flag){&#xD;
+	view.id(&quot;splitPanel&quot;).set(&quot;collapsed&quot;,!flag);&#xD;
+		self.set({&#xD;
+			iconClass:flag?&quot;fa fa-pencil&quot;:&quot;fa fa-file-text&quot;,&#xD;
+			caption:flag?&quot;编辑导航栏&quot;:&quot;保存&quot;&#xD;
+		});&#xD;
+		view.id(&quot;dgNav&quot;).set(&quot;readOnly&quot;,flag)&#xD;
+		view.get(&quot;^btnNav&quot;).set(&quot;visible&quot;,!flag)&#xD;
+		self.set(&quot;userData&quot;,!flag);&#xD;
+}&#xD;
+</ClientEvent>
+              <Property name="caption">编辑导航栏</Property>
+              <Property name="iconClass">fa fa-pencil</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var datas = view.id(&quot;dsNav&quot;).getData().toArray();&#xD;
+view.id(&quot;dsNav&quot;).insert({&#xD;
+	MENU_ORDER:datas.length+1,&#xD;
+	IS_NAVIGATION:&quot;Y&quot;,&#xD;
+	ICONCLASS:&quot;fa fa-bookmark&quot;&#xD;
+})&#xD;
+</ClientEvent>
+              <Property name="iconClass">fa fa-plus</Property>
+              <Property name="caption">新增</Property>
+              <Property name="tags">btnNav</Property>
+              <Property name="visible">false</Property>
+              <Property name="hideMode">display</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsNav&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	data.remove();&#xD;
+}&#xD;
+</ClientEvent>
+              <Property name="iconClass">fa fa-minus</Property>
+              <Property name="caption">删除</Property>
+              <Property name="tags">btnNav</Property>
+              <Property name="visible">false</Property>
+              <Property name="hideMode">display</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">view.id(&quot;dsNav&quot;).getData().cancel();&#xD;
+</ClientEvent>
+              <Property name="caption">撤销</Property>
+              <Property name="iconClass">fa fa-reply</Property>
+              <Property name="hideMode">display</Property>
+              <Property name="visible">false</Property>
+              <Property name="tags">btnNav</Property>
+            </ToolBarButton>
+          </ToolBar>
+          <DataGrid id="dgNav">
+            <ClientEvent name="onReady">//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+	createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+		var editor = $invokeSuper.call(this,arguments);&#xD;
+		editor.set ({&#xD;
+			offValue : &quot;N&quot; ,&#xD;
+			onValue : &quot;Y&quot;&#xD;
+		});&#xD;
+		return editor;&#xD;
+	}&#xD;
+});&#xD;
+self.set(&quot;&amp;IS_SHOW.renderer&quot;,new CellRenderer());&#xD;
+</ClientEvent>
+            <Property name="dataSet">dsNav</Property>
+            <Property name="readOnly">true</Property>
+            <Property name="fixedColumnCount">2</Property>
+            <DataColumn>
+              <Property name="name">MENU_ORDER</Property>
+              <Property name="property">MENU_ORDER</Property>
+              <Property name="width">30</Property>
+            </DataColumn>
+            <DataColumn name="MENU_NAME">
+              <Property name="property">MENU_NAME</Property>
+              <Property name="caption">导航菜单</Property>
+              <Property name="width">150</Property>
+            </DataColumn>
+            <DataColumn>
+              <Property name="property">IS_SHOW</Property>
+            </DataColumn>
+          </DataGrid>
+        </Container>
+      </MainControl>
+      <SideControl>
+        <Container>
+          <ToolBar>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var nav =  view.id(&quot;dsNav&quot;).getData(&quot;#&quot;);&#xD;
+if(nav){&#xD;
+	var child = view.id(&quot;dsNav&quot;).getData(&quot;#.child&quot;);&#xD;
+	child.insert({&#xD;
+		PK_PARENT_MENU:nav.get(&quot;PK_SYS_MENU&quot;),&#xD;
+		IS_NAVIGATION:&quot;N&quot;,&#xD;
+		MENU_ORDER:nav.get(&quot;MENU_ORDER&quot;)+(child.toArray().length+1)&#xD;
+	})&#xD;
+}&#xD;
+</ClientEvent>
+              <Property name="iconClass">fa fa-plus</Property>
+              <Property name="caption">新增</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">var data = view.id(&quot;dsNav&quot;).getData(&quot;#.#child&quot;);&#xD;
+if(data){&#xD;
+	data.remove();&#xD;
+}&#xD;
+</ClientEvent>
+              <Property name="iconClass">fa fa-minus</Property>
+              <Property name="caption">删除</Property>
+            </ToolBarButton>
+            <ToolBarButton>
+              <ClientEvent name="onClick">view.id(&quot;saveChild&quot;).execute(function(){&#xD;
+	view.id(&quot;dsNav&quot;).getData(&quot;#.child&quot;).flush();&#xD;
+})&#xD;
+</ClientEvent>
+              <Property name="iconClass">fa fa-file-text</Property>
+              <Property name="caption">保存</Property>
+            </ToolBarButton>
+          </ToolBar>
+          <SplitPanel>
+            <Property name="direction">bottom</Property>
+            <Property name="position">500</Property>
+            <MainControl>
+              <DataGrid id="dgNavi">
+                <ClientEvent name="onReady">//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;N&quot; ,&#xD;
+                   onValue: &quot;Y&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self.set(&quot;&amp;IS_NAVIGATION.renderer&quot;,new CellRenderer());&#xD;
+</ClientEvent>
+                <Property name="dataSet">dsNav</Property>
+                <Property name="dataPath">#.child</Property>
+                <Property name="readOnly">true</Property>
+                <DataColumn name="MENU_ORDER">
+                  <Property name="property">MENU_ORDER</Property>
+                  <Property name="width">40</Property>
+                </DataColumn>
+                <DataColumn name="MENU_NAME">
+                  <Property name="property">MENU_NAME</Property>
+                </DataColumn>
+                <DataColumn name="MENU_URL">
+                  <Property name="property">MENU_URL</Property>
+                  <Property name="width">200</Property>
+                </DataColumn>
+                <DataColumn>
+                  <Property name="property">ICONCLASS</Property>
+                  <Property name="name">ICONCLASS</Property>
+                </DataColumn>
+                <DataColumn name="MEMO">
+                  <Property name="property">MEMO</Property>
+                </DataColumn>
+              </DataGrid>
+            </MainControl>
+            <SideControl>
+              <AutoForm>
+                <Property name="dataSet">dsNav</Property>
+                <Property name="dataPath">#.#child</Property>
+                <Property name="labelWidth">120</Property>
+                <AutoFormElement layoutConstraint="colSpan:2">
+                  <Property name="name">MENU_ORDER</Property>
+                  <Property name="property">MENU_ORDER</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement layoutConstraint="colSpan:2">
+                  <Property name="name">MENU_NAME</Property>
+                  <Property name="property">MENU_NAME</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement layoutConstraint="colSpan:2">
+                  <Property name="name">MENU_URL</Property>
+                  <Property name="property">MENU_URL</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">ICONCLASS</Property>
+                  <Property name="property">ICONCLASS</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="property">IS_SHOW</Property>
+                  <Property name="name">IS_SHOW</Property>
+                  <Editor>
+                    <CheckBox>
+                      <Property name="onValue">Y</Property>
+                      <Property name="offValue">N</Property>
+                    </CheckBox>
+                  </Editor>
+                </AutoFormElement>
+                <AutoFormElement layoutConstraint="colSpan:2">
+                  <Property name="name">MEMO</Property>
+                  <Property name="property">MEMO</Property>
+                  <Property name="editorType">TextArea</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement layoutConstraint="colSpan:2">
+                  <Property name="name">ACTIVE</Property>
+                  <Property name="property">ACTIVE</Property>
+                  <Editor>
+                    <CheckBox>
+                      <Property name="onValue">1</Property>
+                      <Property name="offValue">0</Property>
+                    </CheckBox>
+                  </Editor>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">CREATE_DATE</Property>
+                  <Property name="property">CREATE_DATE</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">CREATE_USER</Property>
+                  <Property name="property">CREATE_USER</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">UPDATE_DATE</Property>
+                  <Property name="property">UPDATE_DATE</Property>
+                  <Editor/>
+                </AutoFormElement>
+                <AutoFormElement>
+                  <Property name="name">UPDATE_USER</Property>
+                  <Property name="property">UPDATE_USER</Property>
+                  <Editor/>
+                </AutoFormElement>
+              </AutoForm>
+            </SideControl>
+          </SplitPanel>
+        </Container>
+      </SideControl>
+    </SplitPanel>
+    <UpdateAction id="saveNav">
+      <Property name="dataResolver">sysMenu#saveAll</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">0</Property>
+        </Entity>
+      </Property>
+      <Property name="successMessage">保存成功！</Property>
+      <UpdateItem>
+        <Property name="dataPath">[#dirty]</Property>
+        <Property name="dataSet">dsNav</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <UpdateAction id="saveChild">
+      <Property name="dataResolver">sysMenu#saveAll</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">0</Property>
+        </Entity>
+      </Property>
+      <Property name="successMessage">保存成功！</Property>
+      <UpdateItem>
+        <Property name="dataPath">#.child[#dirty]</Property>
+        <Property name="dataSet">dsNav</Property>
+      </UpdateItem>
+    </UpdateAction>
+  </View>
+</ViewConfig>

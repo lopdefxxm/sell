@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model/>
+  <View>
+    <Property name="packages">font-awesome</Property>
+    <DataSet id="dsPsn">
+      <Property name="dataType">[KD_PERSON]</Property>
+      <Property name="dataProvider">kdPerson#getAll</Property>
+    </DataSet>
+    <DataSet id="dsCondition">
+      <ClientEvent name="onReady">self.setData({})&#xD;
+</ClientEvent>
+      <Property name="dataType">[KD_ROOM]</Property>
+    </DataSet>
+    <AutoForm>
+      <Property name="dataSet">dsCondition</Property>
+      <Property name="cols">*,*,*</Property>
+      <AutoFormElement>
+        <Property name="name">CODE</Property>
+        <Property name="property">CODE</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">NAME</Property>
+        <Property name="property">NAME</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="property">STATUS</Property>
+        <Property name="name">STATUS</Property>
+        <Editor/>
+      </AutoFormElement>
+    </AutoForm>
+    <ToolBar>
+      <DataPilot>
+        <Property name="dataSet">dsPsn</Property>
+      </DataPilot>
+      <ToolBarButton>
+        <ClientEvent name="onClick">view.id(&quot;dsPsn&quot;).insert();&#xD;
+view.id(&quot;dialog&quot;).show();&#xD;
+</ClientEvent>
+        <Property name="caption">新增</Property>
+        <Property name="iconClass">fa fa-plus</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsPsn&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	dorado.MessageBox.confirm(&quot;确认删除此数据吗？&quot;,function(){&#xD;
+		data.remove();&#xD;
+		view.id(&quot;actSave&quot;).execute();&#xD;
+		view.id(&quot;actLoad&quot;).execute();&#xD;
+	});&#xD;
+}&#xD;
+&#xD;
+</ClientEvent>
+        <Property name="caption">删除</Property>
+        <Property name="iconClass">fa fa-minus</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">view.id(&quot;dialog&quot;).show();&#xD;
+</ClientEvent>
+        <Property name="caption">编辑</Property>
+        <Property name="iconClass">fa fa-pencil</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <Property name="caption">查询</Property>
+        <Property name="iconClass">fa fa-search</Property>
+        <Property name="action">actLoad</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsPsn&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	dorado.MessageBox.confirm(&quot;确认设置此人员为请假状态吗？&quot;,function(){&#xD;
+		data.set(&quot;STATUS&quot;,&quot;03&quot;);&#xD;
+		view.id(&quot;actSave&quot;).execute();&#xD;
+	})&#xD;
+}</ClientEvent>
+        <Property name="caption">请假</Property>
+        <Property name="iconClass">fa fa-flag</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsPsn&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	if(data.get(&quot;STATUS&quot;)!=&quot;03&quot;){&#xD;
+		throw new dorado.Exception(&quot;此人员不是请假状态，不能置正常！&quot;);&#xD;
+	}&#xD;
+	dorado.MessageBox.confirm(&quot;确认设置此人员为正常状态吗？&quot;,function(){&#xD;
+		data.set(&quot;STATUS&quot;,&quot;01&quot;);&#xD;
+		view.id(&quot;actSave&quot;).execute();&#xD;
+	})&#xD;
+}</ClientEvent>
+        <Property name="caption">上班</Property>
+        <Property name="iconClass">fa fa-flag</Property>
+      </ToolBarButton>
+    </ToolBar>
+    <DataGrid>
+      <ClientEvent name="onReady">//Grid里面设置Active字段为checkBox&#xD;
+//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;0&quot; ,&#xD;
+                   onValue: &quot;1&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self. set ( &quot;&amp;ACTIVE.renderer&quot;,new CellRenderer ());&#xD;
+</ClientEvent>
+      <Property name="dataSet">dsPsn</Property>
+      <Property name="fixedColumnCount">1</Property>
+      <Property name="readOnly">true</Property>
+      <RowNumColumn/>
+      <DataColumn name="CODE">
+        <Property name="property">CODE</Property>
+      </DataColumn>
+      <DataColumn name="NAME">
+        <Property name="property">NAME</Property>
+      </DataColumn>
+      <DataColumn name="GENDER">
+        <Property name="property">GENDER</Property>
+      </DataColumn>
+      <DataColumn name="IDCARD">
+        <Property name="property">IDCARD</Property>
+      </DataColumn>
+      <DataColumn name="PHONE">
+        <Property name="property">PHONE</Property>
+      </DataColumn>
+      <DataColumn name="BIRTH_PLACE">
+        <Property name="property">BIRTH_PLACE</Property>
+      </DataColumn>
+      <DataColumn name="ADDRESS">
+        <Property name="property">ADDRESS</Property>
+      </DataColumn>
+      <DataColumn name="ENTER_DATE">
+        <Property name="property">ENTER_DATE</Property>
+      </DataColumn>
+      <DataColumn>
+        <Property name="property">STATUS</Property>
+        <Property name="name">STATUS</Property>
+      </DataColumn>
+      <DataColumn name="TYPE">
+        <Property name="property">TYPE</Property>
+      </DataColumn>
+      <DataColumn name="MEMO">
+        <Property name="property">MEMO</Property>
+      </DataColumn>
+      <DataColumn name="ACTIVE">
+        <Property name="property">ACTIVE</Property>
+      </DataColumn>
+      <DataColumn name="CREATE_DATE">
+        <Property name="property">CREATE_DATE</Property>
+      </DataColumn>
+      <DataColumn name="CREATE_USER">
+        <Property name="property">CREATE_USER</Property>
+      </DataColumn>
+      <DataColumn name="UPDATE_DATE">
+        <Property name="property">UPDATE_DATE</Property>
+      </DataColumn>
+      <DataColumn name="UPDATE_USER">
+        <Property name="property">UPDATE_USER</Property>
+      </DataColumn>
+    </DataGrid>
+    <Action id="actLoad">
+      <ClientEvent name="onExecute">view.id(&quot;dsPsn&quot;).set(&quot;parameter&quot;,view.id(&quot;dsCondition&quot;).getData(&quot;#&quot;)).flushAsync();&#xD;
+</ClientEvent>
+    </Action>
+    <UpdateAction id="actSave">
+      <Property name="successMessage">保存成功！</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">0</Property>
+        </Entity>
+      </Property>
+      <Property name="dataResolver">kdPerson#saveAll</Property>
+      <UpdateItem>
+        <Property name="dataPath">[#dirty]</Property>
+        <Property name="dataSet">dsPsn</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <Dialog id="dialog">
+      <Property name="width">60%</Property>
+      <Property name="caption">员工信息</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;actSave&quot;).execute(function(){&#xD;
+	view.id(&quot;dialog&quot;).hide();&#xD;
+	view.id(&quot;actLoad&quot;).execute();&#xD;
+})&#xD;
+</ClientEvent>
+          <Property name="iconClass">fa fa-file-text</Property>
+          <Property name="caption">保存</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dialog&quot;).hide();&#xD;
+view.id(&quot;dsPsn&quot;).getData().cancel();&#xD;
+</ClientEvent>
+          <Property name="caption">取消</Property>
+          <Property name="iconClass">fa fa-undo</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <AutoForm>
+          <Property name="dataSet">dsPsn</Property>
+          <AutoFormElement>
+            <Property name="name">CODE</Property>
+            <Property name="property">CODE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">NAME</Property>
+            <Property name="property">NAME</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">GENDER</Property>
+            <Property name="property">GENDER</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">IDCARD</Property>
+            <Property name="property">IDCARD</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">PHONE</Property>
+            <Property name="property">PHONE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">BIRTH_PLACE</Property>
+            <Property name="property">BIRTH_PLACE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">ADDRESS</Property>
+            <Property name="property">ADDRESS</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">ENTER_DATE</Property>
+            <Property name="property">ENTER_DATE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">TYPE</Property>
+            <Property name="property">TYPE</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">STATUS</Property>
+            <Property name="property">STATUS</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">MEMO</Property>
+            <Property name="property">MEMO</Property>
+            <Editor/>
+          </AutoFormElement>
+        </AutoForm>
+      </Children>
+      <Tools/>
+    </Dialog>
+  </View>
+</ViewConfig>

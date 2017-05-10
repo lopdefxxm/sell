@@ -1,0 +1,850 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="KD_ROOM" parent="global:KD_ROOM">
+      <ClientEvent name="onCurrentChange">view.id(&quot;dsBalRoom&quot;).flush();</ClientEvent>
+      <PropertyDef name="STATUS_NAME"/>
+    </DataType>
+    <DataType name="KD_BALROOM" parent="global:KD_BALROOM">
+      <PropertyDef name="NEED_PSN">
+        <Property name="dataType">String</Property>
+        <Property name="defaultValue">1</Property>
+        <Property name="label">是否需要技师</Property>
+      </PropertyDef>
+      <PropertyDef name="PSN_NAME">
+        <Property name="label">技师</Property>
+      </PropertyDef>
+      <PropertyDef name="NAME">
+        <Property name="dataType">String</Property>
+        <Property name="label">消费项目</Property>
+      </PropertyDef>
+    </DataType>
+    <DataType name="KD_BALANCE" parent="global:KD_BALANCE">
+      <PropertyDef name="IS_MEMBER">
+        <ClientEvent name="onSet">var value = arg.value;&#xD;
+view.id(&quot;plPayMode&quot;).set(&quot;visible&quot;,value==&quot;0&quot;);&#xD;
+view.id(&quot;plMember&quot;).set(&quot;visible&quot;,value==&quot;1&quot;);&#xD;
+&#xD;
+var balroom = view.id(&quot;dsBalRoom&quot;).getData();&#xD;
+var amt = 0;&#xD;
+balroom.each(function(data){&#xD;
+	var price = value == &quot;0&quot; ? data.get(&quot;PRICE&quot;) : data.get(&quot;MEM_PRICE&quot;)&#xD;
+	amt += price * data.get(&quot;QTY&quot;)&#xD;
+})&#xD;
+&#xD;
+var PAY_TYPE = value==&quot;1&quot; ?　&quot;11&quot;:&quot;01&quot;;&#xD;
+arg.entity.set({&#xD;
+	REAL_AMT:amt,&#xD;
+	PAY_TYPE:PAY_TYPE&#xD;
+})&#xD;
+view.id(&quot;dsMember&quot;).setData({});&#xD;
+view.id(&quot;dsMemPou&quot;).clear();&#xD;
+&#xD;
+&#xD;
+</ClientEvent>
+        <Property name="dataType">String</Property>
+        <Property name="defaultValue">0</Property>
+        <Property name="label">是否会员</Property>
+      </PropertyDef>
+      <PropertyDef name="REAL_AMT">
+        <Property name="dataType">double</Property>
+        <Property name="displayFormat">0.0</Property>
+        <Property name="label">实付金额</Property>
+      </PropertyDef>
+      <PropertyDef name="IS_DEDUCTION">
+        <ClientEvent name="onSet">var PK_KD_MEMBER = view.id(&quot;dsMember&quot;).getData(&quot;#.PK_KD_MEMBER&quot;);&#xD;
+if(!PK_KD_MEMBER){&#xD;
+	throw new dorado.Exception(&quot;请先选择会员！&quot;);&#xD;
+}&#xD;
+var value = arg.value;&#xD;
+&#xD;
+var balroom = view.id(&quot;dsBalRoom&quot;).getData();&#xD;
+var amt = 0;&#xD;
+balroom.each(function(data){&#xD;
+	var price = data.get(&quot;MEM_PRICE&quot;)&#xD;
+	var qty = data.get(&quot;QTY&quot;)&#xD;
+	if(value == &quot;1&quot;){&#xD;
+		var d = view.id(&quot;dsMemPou&quot;).queryData(&quot;[@.get('PK_KD_CHARGEITEM') == '&quot;+data.get(&quot;PK_KD_CHARGEITEM&quot;)+&quot;']&quot;)[0];&#xD;
+		if(d){&#xD;
+			var count =  d.get(&quot;COUNT&quot;);&#xD;
+			qty = qty &lt;= count ? 0 : qty -  count;&#xD;
+		}&#xD;
+	}&#xD;
+	amt += price * qty;&#xD;
+})&#xD;
+&#xD;
+arg.entity.set({&#xD;
+	REAL_AMT:amt,&#xD;
+})&#xD;
+&#xD;
+</ClientEvent>
+        <Property name="label">是否使用优惠券</Property>
+        <Property name="dataType">String</Property>
+        <Property name="defaultValue">0</Property>
+      </PropertyDef>
+      <PropertyDef name="AMT">
+        <Property name="dataType">double</Property>
+        <Property name="displayFormat">0.0</Property>
+        <Property name="label">实付金额</Property>
+      </PropertyDef>
+    </DataType>
+    <DataType name="KD_MEMBER" parent="global:KD_MEMBER"/>
+    <DataType name="KD_MEMBER_POU" parent="global:KD_MEMBER_POU">
+      <PropertyDef name="NAME">
+        <Property name="label">优惠券</Property>
+        <Property name="dataType">String</Property>
+      </PropertyDef>
+      <PropertyDef name="COUNT">
+        <Property name="dataType">Integer</Property>
+        <Property name="label">数量</Property>
+      </PropertyDef>
+    </DataType>
+  </Model>
+  <View>
+    <ClientEvent name="onCreate">$(&quot;head&quot;).append(&quot;&lt;style type=\&quot;text/css\&quot;>&quot;&#xD;
+	+&quot;.kd-room *{padding: 0;margin: 0;}&quot;&#xD;
+	+&quot;.kd-room {margin:8px;}&quot;&#xD;
+	+&quot;.kd-room div{border:1px solid #A1A1A1;}&quot;&#xD;
+	+&quot;.kd-room div.body{height:90px}&quot;&#xD;
+	+&quot;.kd-room div.caption{font-size:16px;line-height:2.5em;border-top-left-radius: 10px;border-top-right-radius: 10px;text-align:center;background-color:lightblue;}&quot;&#xD;
+	+&quot;.kd-room div.body p{margin:5px 10px;line-height:2em;}&quot;&#xD;
+	//+&quot;.kd-room div.red-bg{background-color:darkred;color: white;}&quot;&#xD;
+	+&quot;.kd-room .kd-room-pic{margin-top: 10px;text-align: center;border:0px solid #A1A1A1;}&quot;&#xD;
+	+&quot;.kd-room .kd-room-pic img{height: 75%;}&quot;&#xD;
+	+&quot;.big-tool-bar .d-button{font-weight: bolder;font-size:14px;margin-right:3px;border-radius:3px;}&quot;&#xD;
++&quot;&lt;/style>&quot;);&#xD;
+&#xD;
+&#xD;
+this.renderBlock = function(data){&#xD;
+	var status01 = &quot;#ADE3FF&quot;;&#xD;
+	var status02 = &quot;#D48E82&quot;;&#xD;
+	var status08 = &quot;#B0AAAC&quot;;&#xD;
+&#xD;
+	var status = data.get(&quot;STATUS&quot;);&#xD;
+	var color = &quot;white&quot;;&#xD;
+	var body = &quot;&lt;div class='body'>&lt;div class=\&quot;kd-room-pic\&quot;>&quot;&#xD;
+		+ &quot; &lt;img  src='images/room-pic.png'>&quot;&#xD;
+		+ &quot;&lt;/div>&lt;/div> &quot;&#xD;
+		&#xD;
+		&#xD;
+	if(status == &quot;01&quot;){&#xD;
+		color = status01;&#xD;
+	}else if (status == &quot;02&quot;){&#xD;
+		color = status02;&#xD;
+		var time = (data.get(&quot;USE_TIME&quot;) || new Date()).formatDate(&quot;H:i:s&quot;)&#xD;
+		body = &quot; &lt;div class='body'>&quot;&#xD;
+			+&quot;  &lt;p>包厢床位：&quot;+data.get(&quot;BED_COUNT&quot;)+&quot;张&lt;/p>&quot;&#xD;
+			+&quot;  &lt;p>宾客数量：&quot;+(data.get(&quot;GUSTS&quot;)||1)+&quot;位&lt;/p>&quot;&#xD;
+			+&quot;  &lt;p>开始时间：&quot;+time+&quot;&lt;/p>&quot;&#xD;
+			+&quot; &lt;/div>&quot;&#xD;
+	}else if (status == &quot;08&quot;){&#xD;
+		color = status08;&#xD;
+		var time = (data.get(&quot;ORDER_TIME&quot;) || new Date()).formatDate(&quot;H:i:s&quot;)&#xD;
+		body = &quot; &lt;div class='body'>&quot;&#xD;
+			+&quot;  &lt;p>包厢床位：&quot;+data.get(&quot;BED_COUNT&quot;)+&quot;张&lt;/p>&quot;&#xD;
+			+&quot;  &lt;p>宾客数量：&quot;+data.get(&quot;GUSTS&quot;)+&quot;位&lt;/p>&quot;&#xD;
+			+&quot;  &lt;p>预约时间：&quot;+time+&quot;&lt;/p>&quot;&#xD;
+			+&quot; &lt;/div>&quot;&#xD;
+	}&#xD;
+	var html =&quot;&lt;div class=\'kd-room\'>&quot;&#xD;
+		+&quot;	&lt;div class=\'caption\' style='background-color:&quot;+color+&quot;'>&quot;&#xD;
+			+(data.get(&quot;NAME&quot;) + &quot;（&quot;+data.get(&quot;STATUS_NAME&quot;)+&quot;）&quot;)&#xD;
+			+&quot;&lt;/div>&quot;&#xD;
+		+ body&#xD;
+		+&quot;&lt;/div>&quot;;&#xD;
+		&#xD;
+	return html;&#xD;
+}&#xD;
+</ClientEvent>
+    <ClientEvent name="onReady">$(view.id(&quot;MainToolBar&quot;).getDom()).addClass(&quot;big-tool-bar&quot;);&#xD;
+var mappings = view.get(&quot;@KD_BALANCE&quot;).getPropertyDef(&quot;PAY_TYPE&quot;).get(&quot;mapping&quot;);&#xD;
+mappings.each(function(m) {&#xD;
+	if (m.key == &quot;11&quot;) {&#xD;
+		mappings.remove(m)&#xD;
+	}&#xD;
+})</ClientEvent>
+    <Property name="packages">font-awesome</Property>
+    <DataSet id="dsRoom">
+      <Property name="dataType">[KD_ROOM]</Property>
+      <Property name="dataProvider">kdBizMain#getRoom</Property>
+    </DataSet>
+    <DataSet id="dsBalRoom">
+      <ClientEvent name="beforeLoadData">self.set(&quot;parameter&quot;,{&#xD;
+	PK_KD_ROOM:view.id(&quot;dsRoom&quot;).getData(&quot;#.PK_KD_ROOM&quot;)&#xD;
+})</ClientEvent>
+      <Property name="dataType">[KD_BALROOM]</Property>
+      <Property name="dataProvider">kdBizMain#getBalRoom</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <DataSet id="dsAllPsn">
+      <Property name="dataType">[KD_PERSON]</Property>
+      <Property name="dataProvider">kdBizMain#getPsn</Property>
+    </DataSet>
+    <DataSet id="dsChargeItem">
+      <Property name="dataType">[KD_CHARGEITEM]</Property>
+      <Property name="dataProvider">kdChargeItem#getAll</Property>
+    </DataSet>
+    <DataSet id="dsSelectPsn">
+      <Property name="dataType">[KD_PERSON]</Property>
+      <Property name="dataProvider">kdBizMain#getPsn</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <DataSet id="dsBalSum">
+      <Property name="dataType">KD_BALANCE</Property>
+    </DataSet>
+    <DataSet id="dsBalRoomance">
+      <Property name="dataType">[KD_BALANCE]</Property>
+    </DataSet>
+    <DataSet id="dsMember">
+      <Property name="dataType">[KD_MEMBER]</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <DataSet id="dsQueryMem">
+      <Property name="dataType">[KD_MEMBER]</Property>
+      <Property name="dataProvider">kdBizMain#getMember</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <DataSet id="dsMemPou">
+      <Property name="dataType">[KD_MEMBER_POU]</Property>
+      <Property name="dataProvider">kdBizMain#getMemPou</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <ToolBar id="MainToolBar">
+      <ToolBarButton>
+        <ClientEvent name="onClick">var topView = window.parent.TopView;&#xD;
+var path = topView.get(&quot;#HomePage.path&quot;);&#xD;
+topView.id(&quot;HomePage&quot;).set(&quot;path&quot;,null);&#xD;
+topView.id(&quot;HomePage&quot;).set(&quot;path&quot;,path);&#xD;
+</ClientEvent>
+        <Property name="caption">刷新</Property>
+        <Property name="iconClass">fa fa-refresh</Property>
+        <Property name="action">loadRoom</Property>
+        <Property name="width">100</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	if(data.get(&quot;STATUS&quot;)!=&quot;01&quot;){&#xD;
+		dorado.MessageBox.alert(&quot;请选择空闲的包厢！&quot;)&#xD;
+	}else{&#xD;
+		view.id(&quot;dlOrder&quot;).show();&#xD;
+	}&#xD;
+}</ClientEvent>
+        <Property name="caption">预约</Property>
+        <Property name="iconClass">fa fa-star-o</Property>
+        <Property name="width">100</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	if(data.get(&quot;STATUS&quot;)!=&quot;01&quot; &amp;&amp; data.get(&quot;STATUS&quot;)!=&quot;08&quot;){&#xD;
+		dorado.MessageBox.alert(&quot;请选择空闲或预约的包厢！&quot;)&#xD;
+	}else{&#xD;
+		view.id(&quot;dlInroom&quot;).show();&#xD;
+	}&#xD;
+}</ClientEvent>
+        <Property name="caption">登记</Property>
+        <Property name="iconClass">fa fa-user</Property>
+        <Property name="width">100</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	if(data.get(&quot;STATUS&quot;)!=&quot;02&quot;){&#xD;
+		dorado.MessageBox.alert(&quot;请选择使用中的包厢！&quot;)&#xD;
+	}else{&#xD;
+		view.id(&quot;dlBalRoom&quot;).show();&#xD;
+	}&#xD;
+}</ClientEvent>
+        <Property name="caption">消费</Property>
+        <Property name="iconClass">fa fa-film</Property>
+        <Property name="width">100</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">var data = view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;);&#xD;
+if (data) {&#xD;
+	if (data.get(&quot;STATUS&quot;) != &quot;02&quot;) {&#xD;
+		dorado.MessageBox.alert(&quot;请选择使用中的包厢！&quot;)&#xD;
+	} else {&#xD;
+		var balroom = view.id(&quot;dsBalRoom&quot;).getData();&#xD;
+		var amt = 0;&#xD;
+		balroom.each(function(data) {&#xD;
+			amt += data.get(&quot;PRICE&quot;) * data.get(&quot;QTY&quot;)&#xD;
+		})&#xD;
+&#xD;
+		view.id(&quot;dsBalSum&quot;).setData({&#xD;
+			IS_MEMBER : &quot;0&quot;,&#xD;
+			AMT : amt,&#xD;
+			REAL_AMT : amt,&#xD;
+			PAY_TYPE : &quot;01&quot;&#xD;
+		})&#xD;
+		view.id(&quot;dlAccount&quot;).show();&#xD;
+	}&#xD;
+}&#xD;
+</ClientEvent>
+        <Property name="caption">结账</Property>
+        <Property name="iconClass">fa fa-usd</Property>
+        <Property name="width">100</Property>
+      </ToolBarButton>
+    </ToolBar>
+    <SplitPanel>
+      <Property name="position">200</Property>
+      <Property name="direction">right</Property>
+      <MainControl>
+        <SplitPanel>
+          <Property name="direction">bottom</Property>
+          <Property name="position">30%</Property>
+          <MainControl>
+            <DataBlockView>
+              <ClientEvent name="onRenderBlock">var data = arg.data;&#xD;
+var html = view.renderBlock(data);&#xD;
+&#xD;
+arg.dom.style.backgroundColor =  &quot;white&quot;;&#xD;
+arg.dom.innerHTML = html;</ClientEvent>
+              <ClientEvent name="onBlockMouseDown">&#xD;
+/**&#xD;
+ * 为解决延迟选择效果的BUG&#xD;
+ * $为jquery的选择器&#xD;
+ * //使用div的Class属性选中第二个元素，当鼠标点击时添加css样式，display:none;&#xD;
+ * 查询到的元素中剔除current-decorator&#xD;
+ */&#xD;
+//$(&quot;div.block-decorator.i-panel-curveborder.block-decorator-curveborder.i-panel&quot;).eq(1).css(&quot;display&quot;,&quot;none&quot;)&#xD;
+&#xD;
+$(&quot;div.block-decorator.i-panel-curveborder.block-decorator-curveborder.i-panel&quot;).not($(&quot;div.current-decorator&quot;)[0]).css(&quot;display&quot;,&quot;none&quot;)</ClientEvent>
+              <Property name="dataSet">dsRoom</Property>
+              <Property name="fillLine">true</Property>
+              <Property name="lineSize">5</Property>
+              <Property name="blockHeight">150</Property>
+              <Property name="allowNoCurrent">true</Property>
+              <Property name="vertPadding">20</Property>
+              <Property name="vertSpacing">20</Property>
+              <Property name="horiPadding">20</Property>
+              <Property name="horiSpacing">20</Property>
+            </DataBlockView>
+          </MainControl>
+          <SideControl>
+            <DataGrid>
+              <Property name="dataSet">dsBalRoom</Property>
+              <Property name="readOnly">true</Property>
+              <Property name="highlightCurrentRow">false</Property>
+              <RowNumColumn/>
+              <DataColumn>
+                <Property name="property">NAME</Property>
+                <Property name="name">NAME</Property>
+                <Property name="trigger">dsddChargeItem</Property>
+              </DataColumn>
+              <DataColumn name="PRICE">
+                <Property name="property">PRICE</Property>
+                <Property name="readOnly">true</Property>
+              </DataColumn>
+              <DataColumn>
+                <Property name="property">MEM_PRICE</Property>
+                <Property name="name">MEM_PRICE</Property>
+                <Property name="readOnly">true</Property>
+              </DataColumn>
+              <DataColumn name="QTY">
+                <Property name="property">QTY</Property>
+              </DataColumn>
+              <DataColumn>
+                <Property name="property">PSN_NAME</Property>
+                <Property name="name">PSN_NAME</Property>
+                <Property name="trigger">dsddPerson</Property>
+              </DataColumn>
+              <DataColumn name="CHARGE_STATUS">
+                <Property name="property">CHARGE_STATUS</Property>
+              </DataColumn>
+            </DataGrid>
+          </SideControl>
+        </SplitPanel>
+      </MainControl>
+      <SideControl>
+        <Panel>
+          <Property name="caption">技师状态</Property>
+          <Buttons/>
+          <Children>
+            <DataGrid>
+              <Property name="dataSet">dsAllPsn</Property>
+              <Property name="readOnly">true</Property>
+              <Property name="highlightCurrentRow">false</Property>
+              <RowNumColumn>
+                <ClientEvent name="onRenderCell">var data = arg.data;&#xD;
+var status = data.get(&quot;STATUS&quot;);&#xD;
+var color = &quot;green&quot;;&#xD;
+if(status==&quot;02&quot;){&#xD;
+	color = &quot;red&quot;;&#xD;
+}else if(status == &quot;03&quot;){&#xD;
+	color = &quot;grey&quot;;&#xD;
+}&#xD;
+arg.dom.innderHTML = &quot;&quot;;&#xD;
+arg.dom.style.backgroundColor = color;</ClientEvent>
+              </RowNumColumn>
+              <DataColumn name="CODE">
+                <Property name="property">CODE</Property>
+              </DataColumn>
+              <DataColumn name="NAME">
+                <Property name="property">NAME</Property>
+              </DataColumn>
+            </DataGrid>
+          </Children>
+          <Tools/>
+        </Panel>
+      </SideControl>
+    </SplitPanel>
+    <UpdateAction id="saveBalRoom">
+      <Property name="dataResolver">kdBizMain#saveAll</Property>
+      <Property name="successMessage">保存成功！</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">0</Property>
+        </Entity>
+      </Property>
+      <UpdateItem>
+        <Property name="dataSet">dsBalRoom</Property>
+        <Property name="dataPath">[#dirty]</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <UpdateAction id="saveRoom">
+      <Property name="dataResolver">kdBizMain#saveAll</Property>
+      <Property name="successMessage">保存成功！</Property>
+      <Property name="parameter">
+        <Entity>
+          <Property name="index">1</Property>
+        </Entity>
+      </Property>
+      <UpdateItem>
+        <Property name="dataSet">dsRoom</Property>
+        <Property name="dataPath">[#dirty]</Property>
+      </UpdateItem>
+    </UpdateAction>
+    <Dialog id="dlOrder">
+      <ClientEvent name="onHide">view.id(&quot;dsRoom&quot;).getData().cancel();</ClientEvent>
+      <ClientEvent name="onShow">view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;).set({&#xD;
+	&quot;STATUS&quot; : &quot;08&quot;,&#xD;
+	&quot;STATUS_NAME&quot; : &quot;预约&quot;,&#xD;
+	&quot;GUSTS&quot; : &quot;1&quot;,&#xD;
+	&quot;ORDER_TIME&quot; : new Date(),&#xD;
+&#xD;
+})</ClientEvent>
+      <Property name="caption">预约</Property>
+      <Property name="width">300</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;saveRoom&quot;).execute(function(){&#xD;
+	view.id(&quot;dlOrder&quot;).hide();&#xD;
+})</ClientEvent>
+          <Property name="iconClass">fa fa-check</Property>
+          <Property name="caption">确定</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dlOrder&quot;).hide();</ClientEvent>
+          <Property name="iconClass">fa fa-times</Property>
+          <Property name="caption">取消</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <AutoForm>
+          <Property name="dataSet">dsRoom</Property>
+          <Property name="cols">*</Property>
+          <AutoFormElement>
+            <Property name="name">GUSTS</Property>
+            <Property name="property">GUSTS</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">ORDER_TIME</Property>
+            <Property name="property">ORDER_TIME</Property>
+            <Editor/>
+          </AutoFormElement>
+        </AutoForm>
+      </Children>
+      <Tools/>
+    </Dialog>
+    <Dialog id="dlInroom">
+      <ClientEvent name="onHide">view.id(&quot;dsRoom&quot;).getData().cancel();</ClientEvent>
+      <ClientEvent name="onShow">view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;).set({&#xD;
+	&quot;STATUS&quot; : &quot;02&quot;,&#xD;
+	&quot;STATUS_NAME&quot; : &quot;使用中&quot;,&#xD;
+	&quot;GUSTS&quot; : &quot;1&quot;,&#xD;
+	&quot;USE_TIME&quot; : new Date(),&#xD;
+})</ClientEvent>
+      <Property name="caption">登记</Property>
+      <Property name="width">300</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;saveRoom&quot;).execute(function(){&#xD;
+	view.id(&quot;dlInroom&quot;).hide();&#xD;
+})</ClientEvent>
+          <Property name="iconClass">fa fa-check</Property>
+          <Property name="caption">确定</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dlInroom&quot;).hide();</ClientEvent>
+          <Property name="iconClass">fa fa-times</Property>
+          <Property name="caption">取消</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <AutoForm>
+          <Property name="dataSet">dsRoom</Property>
+          <Property name="cols">*</Property>
+          <AutoFormElement>
+            <Property name="name">GUSTS</Property>
+            <Property name="property">GUSTS</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">USE_TIME</Property>
+            <Property name="property">USE_TIME</Property>
+            <Property name="readOnly">true</Property>
+            <Editor/>
+          </AutoFormElement>
+        </AutoForm>
+      </Children>
+      <Tools/>
+    </Dialog>
+    <Dialog id="dlBalRoom">
+      <ClientEvent name="onHide">view.id(&quot;dsBalRoom&quot;).getData().cancel();</ClientEvent>
+      <Property name="caption">消费</Property>
+      <Property name="width">75%</Property>
+      <Property name="height">500</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;saveBalRoom&quot;).execute(function(){&#xD;
+	view.id(&quot;dlBalRoom&quot;).hide();&#xD;
+	view.id(&quot;dsBalRoom&quot;).flush();&#xD;
+})</ClientEvent>
+          <Property name="iconClass">fa fa-check</Property>
+          <Property name="caption">确定</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dlBalRoom&quot;).hide();</ClientEvent>
+          <Property name="iconClass">fa fa-times</Property>
+          <Property name="caption">取消</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <ToolBar>
+          <DataPilot>
+            <Property name="dataSet">dsBalRoom</Property>
+          </DataPilot>
+          <ToolBarButton>
+            <ClientEvent name="onClick">var data = view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;);&#xD;
+if(data){&#xD;
+	view.id(&quot;dsBalRoom&quot;).insert({&#xD;
+		PK_KD_ROOM : data.get(&quot;PK_KD_ROOM&quot;),&#xD;
+		QTY:1,&#xD;
+		CHARGE_STATUS:&quot;01&quot;&#xD;
+	});&#xD;
+}</ClientEvent>
+            <Property name="caption">新增</Property>
+            <Property name="iconClass">fa fa-plus</Property>
+          </ToolBarButton>
+          <ToolBarButton>
+            <ClientEvent name="onClick">var data = view.id(&quot;dsBalRoom&quot;).getData(&quot;#&quot;);&#xD;
+if (data) {&#xD;
+	data.remove();&#xD;
+}&#xD;
+</ClientEvent>
+            <Property name="caption">删除</Property>
+            <Property name="iconClass">fa fa-minus</Property>
+          </ToolBarButton>
+        </ToolBar>
+        <DataGrid>
+          <ClientEvent name="onReady">//Grid里面设置Active字段为checkBox&#xD;
+//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;0&quot; ,&#xD;
+                   onValue: &quot;1&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self. set ( &quot;&amp;NEED_PSN.renderer&quot;,new CellRenderer ());&#xD;
+</ClientEvent>
+          <ClientEvent name="onDataRowClick">var data = view.id(&quot;dsBalRoom&quot;).getData(&quot;#&quot;);&#xD;
+view.id(&quot;PK_KD_PERSON_&quot;).set(&quot;readOnly&quot;,data.get(&quot;NEED_PSN&quot;) != &quot;1&quot;)&#xD;
+view.id(&quot;QTY_&quot;).set(&quot;readOnly&quot;,data.get(&quot;NEED_PSN&quot;) == &quot;1&quot;)&#xD;
+</ClientEvent>
+          <Property name="dataSet">dsBalRoom</Property>
+          <RowNumColumn/>
+          <DataColumn>
+            <Property name="property">NAME</Property>
+            <Property name="name">NAME</Property>
+            <Property name="trigger">dsddChargeItem</Property>
+          </DataColumn>
+          <DataColumn name="PRICE">
+            <Property name="property">PRICE</Property>
+            <Property name="readOnly">true</Property>
+          </DataColumn>
+          <DataColumn>
+            <Property name="property">MEM_PRICE</Property>
+            <Property name="name">MEM_PRICE</Property>
+            <Property name="readOnly">true</Property>
+          </DataColumn>
+          <DataColumn>
+            <Property name="name">NEED_PSN</Property>
+            <Property name="property">NEED_PSN</Property>
+            <Property name="readOnly">true</Property>
+          </DataColumn>
+          <DataColumn id="QTY_" name="QTY">
+            <Property name="property">QTY</Property>
+          </DataColumn>
+          <DataColumn id="PK_KD_PERSON_">
+            <Property name="property">PSN_NAME</Property>
+            <Property name="name">PSN_NAME</Property>
+            <Property name="trigger">dsddPerson</Property>
+          </DataColumn>
+        </DataGrid>
+      </Children>
+    </Dialog>
+    <Dialog id="dlAccount">
+      <ClientEvent name="onShow">var value = &quot;0&quot;;&#xD;
+view.id(&quot;plPayMode&quot;).set(&quot;visible&quot;,true);&#xD;
+view.id(&quot;plMember&quot;).set(&quot;visible&quot;,value==&quot;1&quot;);&#xD;
+</ClientEvent>
+      <Property name="width">80%</Property>
+      <Property name="height">480</Property>
+      <Buttons>
+        <Button>
+          <ClientEvent name="onClick">var balance = view.id(&quot;dsBalSum&quot;).getData(&quot;#&quot;);&#xD;
+var member = view.id(&quot;dsMember&quot;).getData(&quot;#&quot;);&#xD;
+var room = view.id(&quot;dsRoom&quot;).getData(&quot;#&quot;);&#xD;
+var roombals = view.id(&quot;dsBalRoom&quot;).getData();&#xD;
+&#xD;
+view.id(&quot;ajaxSaveBalCalculate&quot;).set(&quot;parameter&quot;,{&#xD;
+	roombals : roombals ,&#xD;
+	member : member ,&#xD;
+	balance : balance,&#xD;
+	room : room&#xD;
+}).execute(function(){&#xD;
+	view.id(&quot;dlAccount&quot;).hide();&#xD;
+	view.id(&quot;dsRoom&quot;).flush();&#xD;
+})&#xD;
+</ClientEvent>
+          <Property name="iconClass">fa fa-check</Property>
+          <Property name="caption">确定</Property>
+        </Button>
+        <Button>
+          <ClientEvent name="onClick">view.id(&quot;dlAccount&quot;).hide();</ClientEvent>
+          <Property name="iconClass">fa fa-times</Property>
+          <Property name="caption">取消</Property>
+        </Button>
+      </Buttons>
+      <Children>
+        <DataGrid>
+          <Property name="height">150</Property>
+          <Property name="dataSet">dsBalRoom</Property>
+          <Property name="readOnly">true</Property>
+          <RowNumColumn/>
+          <DataColumn>
+            <Property name="property">NAME</Property>
+            <Property name="name">NAME</Property>
+            <Property name="trigger">dsddChargeItem</Property>
+          </DataColumn>
+          <DataColumn name="PRICE">
+            <Property name="property">PRICE</Property>
+            <Property name="readOnly">true</Property>
+          </DataColumn>
+          <DataColumn>
+            <Property name="property">MEM_PRICE</Property>
+            <Property name="name">MEM_PRICE</Property>
+            <Property name="readOnly">true</Property>
+          </DataColumn>
+          <DataColumn name="QTY">
+            <Property name="property">QTY</Property>
+          </DataColumn>
+          <DataColumn>
+            <Property name="property">PSN_NAME</Property>
+            <Property name="name">PSN_NAME</Property>
+          </DataColumn>
+          <DataColumn name="CHARGE_STATUS">
+            <Property name="property">CHARGE_STATUS</Property>
+          </DataColumn>
+        </DataGrid>
+        <AutoForm>
+          <Property name="dataSet">dsBalSum</Property>
+          <AutoFormElement>
+            <Property name="property">AMT</Property>
+            <Property name="name">AMT</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="property">REAL_AMT</Property>
+            <Property name="name">REAL_AMT</Property>
+            <Editor/>
+          </AutoFormElement>
+          <AutoFormElement>
+            <Property name="name">IS_MEMBER</Property>
+            <Property name="property">IS_MEMBER</Property>
+            <Editor>
+              <CheckBox>
+                <Property name="onValue">1</Property>
+                <Property name="offValue">0</Property>
+              </CheckBox>
+            </Editor>
+          </AutoFormElement>
+        </AutoForm>
+        <Panel id="plPayMode">
+          <Property name="hideMode">display</Property>
+          <Children>
+            <AutoForm>
+              <Property name="dataSet">dsBalSum</Property>
+              <AutoFormElement>
+                <Property name="name">PAY_TYPE</Property>
+                <Property name="property">PAY_TYPE</Property>
+                <Editor/>
+              </AutoFormElement>
+            </AutoForm>
+          </Children>
+        </Panel>
+        <Panel id="plMember">
+          <Children>
+            <SplitPanel>
+              <Property name="direction">right</Property>
+              <Property name="position">300</Property>
+              <Property name="hideMode">display</Property>
+              <MainControl>
+                <AutoForm>
+                  <Property name="dataSet">dsMember</Property>
+                  <AutoFormElement>
+                    <Property name="name">NAME</Property>
+                    <Property name="property">NAME</Property>
+                    <Property name="label">会员名字</Property>
+                    <Property name="trigger">dsddMember</Property>
+                    <Editor/>
+                  </AutoFormElement>
+                  <AutoFormElement>
+                    <Property name="name">IS_DEDUCTION</Property>
+                    <Property name="property">IS_DEDUCTION</Property>
+                    <Property name="labelWidth">120</Property>
+                    <Property name="dataSet">dsBalSum</Property>
+                    <Editor>
+                      <CheckBox>
+                        <Property name="onValue">1</Property>
+                        <Property name="offValue">0</Property>
+                      </CheckBox>
+                    </Editor>
+                  </AutoFormElement>
+                  <AutoFormElement>
+                    <Property name="name">CODE</Property>
+                    <Property name="property">CODE</Property>
+                    <Property name="readOnly">true</Property>
+                    <Editor/>
+                  </AutoFormElement>
+                  <AutoFormElement>
+                    <Property name="name">SIMPLE_NAME</Property>
+                    <Property name="property">SIMPLE_NAME</Property>
+                    <Property name="readOnly">true</Property>
+                    <Editor/>
+                  </AutoFormElement>
+                  <AutoFormElement>
+                    <Property name="name">PHONE</Property>
+                    <Property name="property">PHONE</Property>
+                    <Property name="readOnly">true</Property>
+                    <Editor/>
+                  </AutoFormElement>
+                  <AutoFormElement>
+                    <Property name="name">IDCARD</Property>
+                    <Property name="property">IDCARD</Property>
+                    <Property name="readOnly">true</Property>
+                    <Editor/>
+                  </AutoFormElement>
+                  <AutoFormElement>
+                    <Property name="name">GENDER</Property>
+                    <Property name="property">GENDER</Property>
+                    <Property name="readOnly">true</Property>
+                    <Editor/>
+                  </AutoFormElement>
+                </AutoForm>
+              </MainControl>
+              <SideControl>
+                <DataGrid>
+                  <Property name="dataSet">dsMemPou</Property>
+                  <RowNumColumn/>
+                  <DataColumn name="NAME">
+                    <Property name="property">NAME</Property>
+                    <Property name="trigger">dsddCharge</Property>
+                  </DataColumn>
+                  <DataColumn>
+                    <Property name="property">COUNT</Property>
+                    <Property name="name">COUNT</Property>
+                  </DataColumn>
+                </DataGrid>
+              </SideControl>
+            </SplitPanel>
+          </Children>
+        </Panel>
+      </Children>
+      <Tools/>
+    </Dialog>
+    <DataSetDropDown id="dsddChargeItem">
+      <Property name="dataSet">dsChargeItem</Property>
+      <Property name="displayProperty">NAME</Property>
+      <Property name="assignmentMap">PK_KD_CHARGEITEM,NAME,PRICE,MEM_PRICE,NEED_PSN</Property>
+      <Property name="property">NAME</Property>
+      <Property name="autoOpen">true</Property>
+    </DataSetDropDown>
+    <DataSetDropDown id="dsddPerson">
+      <ClientEvent name="beforeExecute">self.get(&quot;dataSet&quot;).set(&quot;parameter&quot;,{&#xD;
+	STATUS:&quot;'01','02'&quot;&#xD;
+}).flush();</ClientEvent>
+      <Property name="dataSet">dsSelectPsn</Property>
+      <Property name="displayProperty">NAME</Property>
+      <Property name="assignmentMap">PK_KD_PERSON=PK_KD_PERSON,PSN_NAME=NAME</Property>
+      <Property name="property">NAME</Property>
+      <Property name="autoOpen">true</Property>
+      <RowNumColumn>
+        <ClientEvent name="onRenderCell">var data = arg.data;&#xD;
+var status = data.get(&quot;STATUS&quot;);&#xD;
+var color = &quot;green&quot;;&#xD;
+if(status==&quot;02&quot;){&#xD;
+	color = &quot;red&quot;;&#xD;
+}else if(status == &quot;03&quot;){&#xD;
+	color = &quot;grey&quot;;&#xD;
+}&#xD;
+arg.dom.innderHTML = &quot;&quot;;&#xD;
+arg.dom.style.backgroundColor = color;</ClientEvent>
+      </RowNumColumn>
+      <DataColumn name="CODE">
+        <Property name="property">CODE</Property>
+      </DataColumn>
+      <DataColumn name="NAME">
+        <Property name="property">NAME</Property>
+      </DataColumn>
+    </DataSetDropDown>
+    <DataSetDropDown id="dsddMember">
+      <ClientEvent name="onValueSelect">arg.processDefault = false;&#xD;
+var data = arg.selectedValue;&#xD;
+var member = view.id(&quot;dsMember&quot;).getData(&quot;#&quot;);&#xD;
+member.set(data.toJSON())&#xD;
+view.id(&quot;dsMemPou&quot;).set(&quot;parameter&quot;, {&#xD;
+	PK_KD_MEMBER : data.get(&quot;PK_KD_MEMBER&quot;)&#xD;
+}).flush();</ClientEvent>
+      <Property name="dataSet">dsQueryMem</Property>
+      <Property name="displayProperty">NAME</Property>
+      <Property name="autoOpen">true</Property>
+      <Property name="dynaFilter">true</Property>
+      <Property name="filterOnOpen">true</Property>
+      <Property name="filterOnTyping">true</Property>
+      <DataColumn name="NAME">
+        <Property name="property">NAME</Property>
+      </DataColumn>
+      <DataColumn>
+        <Property name="property">PHONE</Property>
+        <Property name="name">PHONE</Property>
+        <Editor/>
+      </DataColumn>
+    </DataSetDropDown>
+    <AjaxAction id="ajaxSaveBalCalculate">
+      <Property name="service">kdBizMain#saveBalCalculate</Property>
+    </AjaxAction>
+    <AjaxAction id="ajaxMemPay">
+      <Property name="service">kdBizMain#memberPay</Property>
+    </AjaxAction>
+  </View>
+</ViewConfig>

@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="KD_BALANCE" parent="global:KD_BALANCE">
+      <PropertyDef name="MEM_NAME">
+        <Property name="label">会员</Property>
+        <Property name="dataType">String</Property>
+      </PropertyDef>
+      <PropertyDef name="ROOM_NAME">
+        <Property name="label">包厢名</Property>
+      </PropertyDef>
+      <PropertyDef name="IS_MEMBER">
+        <Property name="mapping">
+          <Property name="mapValues">${dorado.getDataProvider(&quot;dropDownManage#getYnMaps&quot;).getResult()}</Property>
+        </Property>
+        <Property name="dataType">String</Property>
+        <Property name="label">是否会员消费</Property>
+      </PropertyDef>
+      <PropertyDef name="IS_DEDUCTION">
+        <Property name="mapping">
+          <Property name="mapValues">${dorado.getDataProvider(&quot;dropDownManage#getYnMaps&quot;).getResult()}</Property>
+        </Property>
+        <Property name="dataType">String</Property>
+        <Property name="label">是否使用抵用券</Property>
+      </PropertyDef>
+    </DataType>
+    <DataType name="CONDITION" parent="global:KD_BALANCE">
+      <PropertyDef name="BEG_DATE">
+        <Property name="label">单据时间</Property>
+        <Property name="dataType">Date</Property>
+      </PropertyDef>
+      <PropertyDef name="END_DATE">
+        <Property name="label">至</Property>
+        <Property name="dataType">Date</Property>
+      </PropertyDef>
+      <PropertyDef name="YEAR">
+        <Property name="label">年份</Property>
+        <Property name="dataType">String</Property>
+      </PropertyDef>
+      <PropertyDef name="MONTH">
+        <Property name="label">月份</Property>
+        <Property name="dataType">String</Property>
+      </PropertyDef>
+    </DataType>
+  </Model>
+  <View>
+    <ClientEvent name="onReady">view.id(&quot;actLoad&quot;).execute();</ClientEvent>
+    <Property name="packages">font-awesome,doExcel</Property>
+    <DataSet id="dsBalance">
+      <Property name="dataType">[KD_BALANCE]</Property>
+      <Property name="dataProvider">kdBalance#getAll</Property>
+      <Property name="loadMode">manual</Property>
+    </DataSet>
+    <DataSet id="dsCondition">
+      <ClientEvent name="onReady">var month = view.id(&quot;ajaxGetCurrenMonth&quot;).execute();&#xD;
+self.setData(month)&#xD;
+</ClientEvent>
+      <Property name="dataType">CONDITION</Property>
+    </DataSet>
+    <AutoForm>
+      <Property name="dataSet">dsCondition</Property>
+      <AutoFormElement>
+        <Property name="name">YEAR</Property>
+        <Property name="property">YEAR</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">MONTH</Property>
+        <Property name="property">MONTH</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">BEG_DATE</Property>
+        <Property name="property">BEG_DATE</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">END_DATE</Property>
+        <Property name="property">END_DATE</Property>
+        <Editor/>
+      </AutoFormElement>
+    </AutoForm>
+    <ToolBar>
+      <DataPilot>
+        <Property name="dataSet">dsBalance</Property>
+      </DataPilot>
+      <ToolBarButton>
+        <Property name="caption">查询</Property>
+        <Property name="iconClass">fa fa-search</Property>
+        <Property name="action">actLoad</Property>
+      </ToolBarButton>
+      <ToolBarButton>
+        <ClientEvent name="onClick">doExcel(view,&quot;dgBalance&quot;)</ClientEvent>
+        <Property name="caption">导出Excel</Property>
+        <Property name="iconClass">fa fa-file-excel-o</Property>
+      </ToolBarButton>
+    </ToolBar>
+    <DataGrid id="dgBalance">
+      <ClientEvent name="onReady">//Grid里面设置Active字段为checkBox&#xD;
+//将DataGrid里的Active设置为checkBox 写在DataGrid里面的onReady事件里面&#xD;
+var CellRenderer = $extend(dorado.widget.grid.CheckBoxCellRenderer , {&#xD;
+       createSubControl : function(arg) {       //SubControl  创建辅助控件&#xD;
+             var editor = $invokeSuper. call ( this,arguments);&#xD;
+             editor. set ({&#xD;
+                   offValue: &quot;0&quot; ,&#xD;
+                   onValue: &quot;1&quot;&#xD;
+             });&#xD;
+             return editor;&#xD;
+       }&#xD;
+});&#xD;
+self. set ( &quot;&amp;ACTIVE.renderer&quot;,new CellRenderer ());&#xD;
+</ClientEvent>
+      <Property name="dataSet">dsBalance</Property>
+      <Property name="fixedColumnCount">1</Property>
+      <Property name="readOnly">true</Property>
+      <Property name="showFooter">true</Property>
+      <RowNumColumn/>
+      <DataColumn name="BILL_DATE">
+        <Property name="property">BILL_DATE</Property>
+      </DataColumn>
+      <DataColumn>
+        <Property name="property">ROOM_NAME</Property>
+        <Property name="name">ROOM_NAME</Property>
+      </DataColumn>
+      <DataColumn name="AMT">
+        <Property name="property">AMT</Property>
+        <Property name="summaryType">sum</Property>
+      </DataColumn>
+      <DataColumn name="REAL_AMT">
+        <Property name="property">REAL_AMT</Property>
+        <Property name="summaryType">sum</Property>
+      </DataColumn>
+      <DataColumn>
+        <Property name="property">MEM_NAME</Property>
+        <Property name="name">MEM_NAME</Property>
+      </DataColumn>
+      <DataColumn>
+        <Property name="property">PAY_TYPE</Property>
+        <Property name="name">PAY_TYPE</Property>
+      </DataColumn>
+      <DataColumn>
+        <Property name="property">IS_MEMBER</Property>
+        <Property name="name">IS_MEMBER</Property>
+      </DataColumn>
+      <DataColumn name="IS_DEDUCTION">
+        <Property name="property">IS_DEDUCTION</Property>
+      </DataColumn>
+      <DataColumn name="MEMO">
+        <Property name="property">MEMO</Property>
+      </DataColumn>
+      <DataColumn name="ACTIVE">
+        <Property name="property">ACTIVE</Property>
+      </DataColumn>
+      <DataColumn name="CREATE_DATE">
+        <Property name="property">CREATE_DATE</Property>
+      </DataColumn>
+      <DataColumn name="CREATE_USER">
+        <Property name="property">CREATE_USER</Property>
+      </DataColumn>
+      <DataColumn name="UPDATE_DATE">
+        <Property name="property">UPDATE_DATE</Property>
+      </DataColumn>
+      <DataColumn name="UPDATE_USER">
+        <Property name="property">UPDATE_USER</Property>
+      </DataColumn>
+    </DataGrid>
+    <Action id="actLoad">
+      <ClientEvent name="onExecute">view.id(&quot;dsBalance&quot;).set(&quot;parameter&quot;,view.id(&quot;dsCondition&quot;).getData(&quot;#&quot;)).flushAsync();&#xD;
+</ClientEvent>
+    </Action>
+    <AjaxAction id="ajaxGetCurrenMonth">
+      <Property name="service">commonUtil#getCurrentMonth</Property>
+      <Property name="async">false</Property>
+    </AjaxAction>
+  </View>
+</ViewConfig>

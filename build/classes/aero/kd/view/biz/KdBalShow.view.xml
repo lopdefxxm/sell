@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ViewConfig>
+  <Arguments/>
+  <Context/>
+  <Model>
+    <DataType name="CONDITION">
+      <PropertyDef name="BEG_DATE">
+        <Property name="label">单据时间</Property>
+        <Property name="dataType">Date</Property>
+      </PropertyDef>
+      <PropertyDef name="END_DATE">
+        <Property name="label">至</Property>
+        <Property name="dataType">Date</Property>
+      </PropertyDef>
+      <PropertyDef name="YEAR">
+        <Property name="label">年份</Property>
+        <Property name="dataType">String</Property>
+      </PropertyDef>
+      <PropertyDef name="MONTH">
+        <Property name="label">月份</Property>
+        <Property name="dataType">String</Property>
+      </PropertyDef>
+    </DataType>
+  </Model>
+  <View>
+    <ClientEvent name="onCreate">this.show = function(){&#xD;
+	var condition = view.id(&quot;dsCondition&quot;).getData(&quot;#&quot;);&#xD;
+	view.id(&quot;ajaxGetData&quot;).set(&quot;parameter&quot;,condition)&#xD;
+	.execute(function(data){&#xD;
+		myChart_Column2D({&#xD;
+			datas:data,&#xD;
+			width : $(window).width() * 1,&#xD;
+			height : $(window).height() * 0.8,&#xD;
+			title : &quot;每日消费单&quot;,&#xD;
+			render : &quot;store_now&quot;&#xD;
+		})&#xD;
+	&#xD;
+	});&#xD;
+}&#xD;
+&#xD;
+</ClientEvent>
+    <ClientEvent name="onReady">view.show();</ClientEvent>
+    <Property name="packages">font-awesome,ichart</Property>
+    <DataSet id="dsCondition">
+      <ClientEvent name="onReady">var month = view.id(&quot;ajaxGetCurrenMonth&quot;).execute();&#xD;
+self.setData(month)&#xD;
+</ClientEvent>
+      <Property name="dataType">CONDITION</Property>
+    </DataSet>
+    <AutoForm>
+      <Property name="dataSet">dsCondition</Property>
+      <AutoFormElement>
+        <Property name="name">YEAR</Property>
+        <Property name="property">YEAR</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">MONTH</Property>
+        <Property name="property">MONTH</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">BEG_DATE</Property>
+        <Property name="property">BEG_DATE</Property>
+        <Editor/>
+      </AutoFormElement>
+      <AutoFormElement>
+        <Property name="name">END_DATE</Property>
+        <Property name="property">END_DATE</Property>
+        <Editor/>
+      </AutoFormElement>
+    </AutoForm>
+    <ToolBar>
+      <ToolBarLabel/>
+      <ToolBarButton>
+        <ClientEvent name="onClick">view.show();&#xD;
+</ClientEvent>
+        <Property name="caption">刷新</Property>
+        <Property name="iconClass">fa fa-refresh</Property>
+      </ToolBarButton>
+    </ToolBar>
+    <HtmlContainer>
+      <Property name="content">&lt;div id=&quot;store_now&quot;>&lt;/div></Property>
+    </HtmlContainer>
+    <AjaxAction id="ajaxGetCurrenMonth">
+      <Property name="service">commonUtil#getCurrentMonth</Property>
+      <Property name="async">false</Property>
+    </AjaxAction>
+    <AjaxAction id="ajaxGetData">
+      <Property name="service">kdBalInShow#getAll</Property>
+    </AjaxAction>
+  </View>
+</ViewConfig>
