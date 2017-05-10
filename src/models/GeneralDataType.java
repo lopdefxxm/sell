@@ -40,6 +40,7 @@ public final class GeneralDataType {
 	//JdbcUtils jdbcUtils ;
 	public static void main(String[] args) {
 		show();
+		
 	}
 
 	private static String getFilePath() {
