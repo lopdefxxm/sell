@@ -17,11 +17,15 @@ $(document).ready(function() {
 			$(".error").hide();
 		}
 	});
-	
+	var loginFlag = false;
 	/**
 	 * 登录按钮
 	 */
     $("#btnSubmit").click(function(){
+    	if(loginFlag){
+    		return false;
+    	}
+    	loginFlag = true;
     	var username = $(".username").val();
         var password = $(".password").val();
         if(!username || username== "") {
@@ -31,6 +35,7 @@ $(document).ready(function() {
             $(".error").fadeIn("fast", function(){
                 $(".username").focus();
             });
+            loginFlag = false;
             return false;
         }
 		
@@ -41,8 +46,14 @@ $(document).ready(function() {
             $(".error").fadeIn("fast", function(){
                 $(".password").focus();
             });
+            loginFlag = false;
             return false;
         }
+        var i = 0;
+		var time = setInterval(function(){
+			$("#btnSubmit").css("background-image","linear-gradient(90deg, #ef4300 0, #FAE8E3 "+i+"px)");
+			i = i+10;
+		},"100");
     	$.post(
             	"loginManage.Login.c",
             	{
@@ -50,8 +61,11 @@ $(document).ready(function() {
             		password:password
             	},
             	function(data){
+            		loginFlag = false;
+            		clearInterval(time);
             		var status = data.status;
             		if(status=="0"){
+            			$("#btnSubmit").css("background-image","linear-gradient(90deg, #ef4300 0, #ef4300 100%)");
             			$(".Captcha").show().val(data.msg).css({
             				"color":"#FF89C0",
             			});

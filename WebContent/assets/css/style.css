@@ -78,6 +78,7 @@ button {
     width: 300px;
     height: 44px;
     margin-top: 25px;
+    margin-left: 7.5px;
     padding: 0;
     background: #ef4300;
     -moz-border-radius: 6px;
