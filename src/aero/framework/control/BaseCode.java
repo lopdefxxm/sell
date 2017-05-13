@@ -21,6 +21,7 @@ public class BaseCode {
 	@DataProvider
 	public List<Map<String,Object>> getCodeClass(Map<String,Object> parameter){
 		return manage.getCodeClass(parameter);
+		
 	}
 	
 	@DataProvider

@@ -5,10 +5,10 @@
  
  	<!-- 使用apache的DBCP管理数据连接池 -->
 	<bean id="mysql" class="org.apache.commons.dbcp.BasicDataSource">
-		<property name="url" value="jdbc:mysql://localhost:3306/kd" />
+		<property name="url" value="jdbc:mysql://hdm140015440.my3w.com:3306/hdm140015440_db" />
 		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="username" value="root" />
-		<property name="password" value="root" />
+		<property name="username" value="hdm140015440" />
+		<property name="password" value="hdm140015440" />
 		<property name="minIdle" value="10" />
 		<property name="maxActive" value="20" />
 		<property name="maxWait" value="1000" />
