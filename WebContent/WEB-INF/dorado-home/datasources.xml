@@ -15,16 +15,10 @@
 		<property name="removeAbandonedTimeout" value="60" />
 		<property name="removeAbandoned" value="true" />
 		<property name="logAbandoned" value="true" />
+		<property name="validationQuery" value="SELECT 1" />
+		<property name="testOnBorrow" value="true" />
 	</bean>
 
-<!--
-	<bean id="mysql" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-		<property name="driverClassName" value="com.mysql.jdbc.Driver" />
-		<property name="url" value="jdbc:mysql://ttaoy20.6655.la:3306/sell" />
-		<property name="username" value="angelhouse" />
-		<property name="password" value="angeltt123@" />
-	</bean>
- -->
 	<bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate"
 		abstract="false" lazy-init="false" autowire="default"
 		dependency-check="default">

@@ -10,7 +10,6 @@
         <meta name="author" content="Aero">
 
         <!-- CSS -->
-        <link rel="stylesheet" href="assets/css/reset.css">
         <link rel="stylesheet" href="assets/css/supersized.css">
         <link rel="stylesheet" href="assets/css/style.css">
 
@@ -22,16 +21,17 @@
     </head>
 
     <body>
-
+	
         <div class="page-container">
             <h1>登录(Login)</h1>
-            <form action="/sell/aero.framework.view.login.d" method="get">
-                <input type="text" name="username" class="username" placeholder="请输入您的用户名！" tautocomplete='off' >
-                <input type="password" name="password" class="password" placeholder="请输入您的用户密码！" tautocomplete='off'>
-                <input type="Captcha" class="Captcha" name="Captcha" readonly/>
-                <button type="submit" class="submit_button" id="btnSubmit">登录</button>
+            <div class="form">
+            <!-- action="/sell/aero.framework.view.login.c" -->
+                <input type="text" name="username" class="username" placeholder="请输入您的用户名！" >
+                <input type="text" name="password" class="password" placeholder="请输入您的用户密码！">
+                <input type="text" class="Captcha" name="Captcha" readonly/>
+                <button type="button" class="submit_button" id="btnSubmit">登录</button>
                 <div class="error"><span>+</span></div>
-            </form>
+            </div>
         </div>
 		
         <!-- Javascript -->

@@ -2,13 +2,20 @@ package aero.framework.domain;
 
 import javax.servlet.http.HttpSession;
 
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 import org.springframework.web.context.WebApplicationContext;
 
-public class ContextHolder{
+@Component
+public class ContextHolder implements ApplicationContextAware {
 	
 	private static HttpSession session;
 	
 	private static String loginUserName;
+	
+	private static ApplicationContext springContext;
 	
 	public static String getLoginUserName() {
 		return loginUserName;
@@ -18,10 +25,9 @@ public class ContextHolder{
 		ContextHolder.loginUserName = loginUserName;
 	}
 
-	private static WebApplicationContext springContext;
 	
 	
-	public static WebApplicationContext getSpringContext() {
+	public static ApplicationContext getSpringContext() {
 		return springContext;
 	}
 
@@ -35,5 +41,11 @@ public class ContextHolder{
 	
 	public static void setSession(HttpSession s){
 		session = s;
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext arg0)
+			throws BeansException {
+		springContext = arg0;
 	}
 }

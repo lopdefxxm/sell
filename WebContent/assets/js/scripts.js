@@ -1,46 +1,68 @@
-
 $(document).ready(function() {
-	$("input.username").focus();
+	/**
+	 * 在输入时修改为密码状态
+	 */
+	$("input.password").focus(function(){
+		this.type="password";
+	});
 	
-    $('.page-container form').submit(function(){
-        var username = $(this).find('.username').val();
-        var password = $(this).find('.password').val();
-        if(username == '') {
-            $(this).find('.error').fadeOut('fast', function(){
-                $(this).css('top', '27px');
+	$(".password,.username").keypress(function(event){
+		if(event.keyCode == 13){
+			if($(this).attr("class")=="username"){
+				$(".password").focus();
+			}else{
+				 $("#btnSubmit").click();
+			}
+		}else{
+			$(".error").hide();
+		}
+	});
+	
+	/**
+	 * 登录按钮
+	 */
+    $("#btnSubmit").click(function(){
+    	var username = $(".username").val();
+        var password = $(".password").val();
+        if(!username || username== "") {
+            $(".error").fadeOut("fast", function(){
+                $(this).css("top", "27px");
             });
-            $(this).find('.error').fadeIn('fast', function(){
-                $(this).parent().find('.username').focus();
+            $(".error").fadeIn("fast", function(){
+                $(".username").focus();
             });
             return false;
         }
 		
-        if(password == '') {
-            $(this).find('.error').fadeOut('fast', function(){
-                $(this).css('top', '96px');
+        if(password == "") {
+            $(".error").fadeOut("fast", function(){
+                $(this).css("top", "96px");
             });
-            $(this).find('.error').fadeIn('fast', function(){
-                $(this).parent().find('.password').focus();
+            $(".error").fadeIn("fast", function(){
+                $(".password").focus();
             });
             return false;
         }
-        
-     //   $(this).attr("action","loginManage.login.c?username="+username+"&password="+password);
-     //   $(this).submit();
-       
+    	$.post(
+            	"loginManage.Login.c",
+            	{
+            		username:username,
+            		password:password
+            	},
+            	function(data){
+            		var status = data.status;
+            		if(status=="0"){
+            			$(".Captcha").show().val(data.msg).css({
+            				"color":"#FF89C0",
+            			});
+            		}else{
+            			window.location.href="aero.framework.view.MainView.d";
+            		}
+            	}
+            );
     });
-
-    $('.page-container form .username, .page-container form .password').keyup(function(){
-        $(this).parent().find('.error').fadeOut('fast');
-    });
-
-    var url = window.location.href;
-   
-	if(url.indexOf("?")>0){
-		$(this).find('.Captcha').show().val("账号密码错误！").css({
-			"color":"#FF89C0",
-		});
-	}else{
-		 $(this).find('.Captcha').hide();
-	}
+	$(".Captcha").hide();
+    
+    //初始化完成，在用户名上聚焦
+    $("input.username").focus();
 });

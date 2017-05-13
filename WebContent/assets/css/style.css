@@ -1,10 +1,7 @@
-Ôªø/*
+/*
  *
  * Template Name: Fullscreen Login
  * Description: Login Template with Fullscreen Background Slideshow
- * Author: Anli Zaimi
- * Author URI: http://azmind.com
- *
  */
 
 
@@ -27,7 +24,7 @@ h1 {
     text-shadow: 0 1px 4px rgba(0,0,0,.2);
 }
 
-form {
+.form {
     position: relative;
     width: 350px;
     margin: 15px auto 0 auto;
@@ -137,7 +134,7 @@ button:active {
     display: none;
     position: absolute;
     top: 27px;
-    right: -55px;
+    right: -28px;
     width: 40px;
     height: 40px;
     background: #2d2d2d; /* browsers that don't support rgba */
@@ -180,13 +177,11 @@ button:active {
     -ms-transition: all .2s;
 }
 
-.connect a.facebook { background: url(../img/facebook.png) center center no-repeat; }
-.connect a.twitter { background: url(../img/twitter.png) center center no-repeat; }
 
 .connect a:hover { background-position: center bottom; }
 
-/*ÔºçÔºçÔºçÂ¢ûÂä†ÈÉ®‰ªΩÁöÑCSSÔºçÔºçÔºç*/
-form,input,button{font-family:Microsoft YaHei,Segoe UI,Tahoma,Arial,Verdana,sans-serif; text-decoration:none; width:100%;}
+/*£≠£≠£≠‘ˆº”≤ø∑›µƒCSS£≠£≠£≠*/
+.form,input,button{font-family:Microsoft YaHei,Segoe UI,Tahoma,Arial,Verdana,sans-serif; text-decoration:none; width:100%;}
 button.submit_button{ font-size:24px; letter-spacing:15px;}
 input.Captcha{ width:130px; float:left;}
 

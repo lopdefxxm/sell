@@ -1,9 +1,6 @@
 package aero.framework.filter;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -16,30 +13,26 @@ import javax.servlet.http.HttpServletResponse;
 
 import aero.framework.domain.ContextHolder;
 import aero.framework.domain.SInfomation;
+import aero.framework.domain.SpecialUrcAccessDefinition;
 
 /**
- * 是否登陆的过滤器
+ * 登陆过滤器
  * @author Aero
  */
 public class LoginFilter implements Filter {
 	
-	private Set<String> specialURL;
-
-	private String[] specialFile;
-
+	SpecialUrcAccessDefinition specialUrcAccessDefinition;
 
 	@Override
 	public void init(FilterConfig fConfig) throws ServletException {
-		this.specialURL = new HashSet<>();
-		this.specialURL.add("/aero.framework.view.login.d");
-		this.specialURL.add("/login.html");
-		this.specialFile = new String[]{"css","dpkg","js","gif","jpg"};
+		specialUrcAccessDefinition = (SpecialUrcAccessDefinition)ContextHolder.getSpringContext().getBean("specialUrcAccessDefinition");
 	}
+	
+	
 
 	
 	@Override
-	public void doFilter(ServletRequest request, ServletResponse response,
-			FilterChain chain) throws IOException, ServletException {
+	public void doFilter(ServletRequest request, ServletResponse response,FilterChain chain) throws IOException, ServletException {
 		HttpServletRequest req = (HttpServletRequest) request;
 		HttpServletResponse res = (HttpServletResponse) response;
 		Object loginUser = req.getSession().getAttribute(SInfomation.USER_SESSION_KEY);
@@ -47,17 +40,11 @@ public class LoginFilter implements Filter {
 			chain.doFilter(req, res);
 			return;
 		}
-		String loginURL = req.getContextPath()+ "/login.html";
-		Map<String, String[]> map = req.getParameterMap();
 		String path = getUrl(req);
-		if(path.endsWith("login.d") && map.isEmpty()){
-			res.sendRedirect(loginURL);
-			return;
-		}
-		if (isSpecialURLS(path)) {
+		if (specialUrcAccessDefinition.isSpecialFile(path) || specialUrcAccessDefinition.isSpecialUrl(path)) {
 			chain.doFilter(req, res);
 		} else {
-			res.sendRedirect(loginURL);
+			res.sendRedirect(req.getContextPath()+ "/login.html");
 		}
 	}
 
@@ -75,27 +62,11 @@ public class LoginFilter implements Filter {
 			uri = uri.substring(0, queryParamIndex);
 		}
 		if (contextPath.length() > 1) {
-			uri = uri.substring(contextPath.length(), uri.length());
+			uri = uri.substring(contextPath.length()+1, uri.length());
 		}
 		return uri;
 	}
 
-	public boolean isSpecialURLS(String path) {
-		if (specialURL.contains(path)) {
-			return true;
-		}
-		if(path.startsWith("/dorado/view-service")){
-			return true;
-		}
-		for(String suffix:this.specialFile){
-			if(path.endsWith("."+suffix)){
-				return true;
-			}
-		}
-		return false;
-	}
-
-	
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
